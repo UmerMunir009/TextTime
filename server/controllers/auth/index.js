@@ -8,11 +8,11 @@ const {upload}=require('../../utils/multer')
 router.post("/auth/sign-up",validate(userCreateSchema), authServices.signup); 
 router.post("/auth/login", authServices.login); 
 router.post("/auth/logout", authServices.logout); 
-// router.post("/auth/sign-in", authServices.login); 
-// router.post("/auth/logout", authServices.login); 
+router.put('/auth/update-profile',upload.single('image'),authServices.updateProfile)
+router.get('/auth/checkAuth',authServices.checkAuth)
+
 
 
 
 module.exports = router;
 
-// ,upload.single('image')

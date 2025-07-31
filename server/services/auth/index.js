@@ -7,7 +7,7 @@ const { User } = require("../../models");
 
 const signup = asyncErrorHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  // const image=req.file
+  
   const isExist = await User.findOne({where: {email},
     raw: true,
   });
@@ -20,7 +20,6 @@ const signup = asyncErrorHandler(async (req, res) => {
   }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  // const {public_id}=await cloudinary.uploader.upload(image.path)
 
   const userData = {
     name,
@@ -91,10 +90,46 @@ const logout = asyncErrorHandler(async (req, res) => {
     });
   
 });
+const updateProfile = asyncErrorHandler(async (req, res) => {
+  
+  const image=req.file
+  
+  if (!image) {
+    return res.status(STATUS_CODES.REQUIRED).json({ statusCode: STATUS_CODES.REQUIRED,message: "Image is required" });
+  }
+
+  const uploadresponse=await cloudinary.uploader.upload(image.path)
+  const data = await User.update({profilePic:uploadresponse.secure_url}, {
+    where: {
+      id: req.user.id,
+    },
+    returning: true,
+  });
+
+  
+    res.status(STATUS_CODES.SUCCESS).json({
+      statusCode: STATUS_CODES.SUCCESS,
+      message: TEXTS.UPDATED,
+      data:data
+    });
+  
+});
+
+const checkAuth = asyncErrorHandler(async (req, res) => {
+  
+    res.status(STATUS_CODES.SUCCESS).json({
+      statusCode: STATUS_CODES.SUCCESS,
+      message: TEXTS.VERIFIED,
+      data:req.user
+    });
+  
+});
 
 
 module.exports = {
   signup,
   login,
-  logout
+  logout,
+  updateProfile,
+  checkAuth
 };
