@@ -42,6 +42,7 @@ module.exports = {
       DATA_FOUND: "Data found",
       PASSWORD_UPDATED : "Password Updated",
       PROFILE_UPDATED : "Profile Updated",
-      UPDATE_FAILED : "Update failed"
+      UPDATE_FAILED : "Update failed",
+      LOGOUT:'Logout successfully'
     },
   };

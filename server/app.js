@@ -7,11 +7,13 @@ const routes = require("./routes");
 // const { authenticate } = require("./middlewares/auth.middleware");
 const CustomError = require("./utils/CustomError");
 const globalErrorHandler = require("./controllers/error/errorController");
+const connectCloudinary=require('./config/cloudinary')
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: false }));
+connectCloudinary()
 
 // const {upload}= require('./utils/multer');
 

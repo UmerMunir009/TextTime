@@ -21,6 +21,7 @@
     "@bull-board/express": "^6.6.1",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cos-nodejs-sdk-v5": "^2.14.6",
