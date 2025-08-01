@@ -116,7 +116,7 @@ const updateProfile = asyncErrorHandler(async (req, res) => {
 });
 
 const checkAuth = asyncErrorHandler(async (req, res) => {
-  
+  console.log(req.user)
     res.status(STATUS_CODES.SUCCESS).json({
       statusCode: STATUS_CODES.SUCCESS,
       message: TEXTS.VERIFIED,

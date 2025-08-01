@@ -9,7 +9,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      sernderId: {
+      senderId: {
         type:Sequelize.UUID,
         allowNull:false,
         references: {

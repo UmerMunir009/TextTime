@@ -28,7 +28,6 @@ app.use(require('./middlewares/paginate').paginate)
 
 app.use(routes);
 
-
 app.all("*", (req, res, next) => {
   const err = new CustomError(
     `Can't find ${req.originalUrl} on the server!`,
