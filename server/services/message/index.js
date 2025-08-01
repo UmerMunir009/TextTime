@@ -39,6 +39,7 @@ const getChat = asyncErrorHandler(async (req, res) => {
       ],
     },
     order: [["createdAt", "ASC"]],
+     attributes: { exclude: ["id"] },
     raw: true,
   });
 
@@ -63,25 +64,19 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
     });
   }
 
+  let imgUrl
   if (image) {
     const uploadresponse = await cloudinary.uploader.upload(image.path);
-    const message = await Message.create({
-      senderId: myId,
-      recieverId: userIdToSendMsg,
-      image: uploadresponse.secure_url,
-    });
-    return res.status(STATUS_CODES.SUCCESS).json({
-      statusCode: STATUS_CODES.SUCCESS,
-      message: TEXTS.CREATED,
-      data: message,
-    });
+    imgUrl=uploadresponse.secure_url
   }
 
   const message = await Message.create({
     senderId: myId,
     recieverId: userIdToSendMsg,
     text,
+    image:imgUrl
   });
+  //real-time functionality here
 
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
