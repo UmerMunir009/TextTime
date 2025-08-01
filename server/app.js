@@ -11,7 +11,10 @@ const connectCloudinary=require('./config/cloudinary')
 const cookirParser=require('cookie-parser')
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite default dev server
+  credentials: true                
+}));
 app.use(cookirParser())
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: false }));
@@ -21,7 +24,7 @@ app.get("/test",(req,res)=>{
   res.send("Server is running changes")
 })
 
-authenticate.unless = unless;
+authenticate.unless = unless;   
 app.use(authenticate.unless(authenticateRoutes));
 
 app.use(require('./middlewares/paginate').paginate)
