@@ -14,9 +14,6 @@ const userCreateSchema = Joi.object({
     'string.empty': 'Password is required',
     'string.min': 'Password must be at least 6 characters',
     'any.required': 'Password is required',
-  }),
-   profilePic: Joi.string().uri().optional().messages({
-    'string.uri': 'Profile picture must be a valid URL',
   })
 });
 

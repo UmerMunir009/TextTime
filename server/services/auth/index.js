@@ -7,10 +7,8 @@ const { User } = require("../../models");
 
 const signup = asyncErrorHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  
-  const isExist = await User.findOne({where: {email},
-    raw: true,
-  });
+
+  const isExist = await User.findOne({ where: { email }, raw: true });
 
   if (isExist) {
     return res.status(STATUS_CODES.CONFLICT).json({
@@ -41,13 +39,9 @@ const signup = asyncErrorHandler(async (req, res) => {
   });
 });
 
-
-
 const login = asyncErrorHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({where: {email},
-    raw: true
-  });
+  const user = await User.findOne({ where: { email }, raw: true });
 
   if (!user) {
     return res.status(STATUS_CODES.NOT_FOUND).json({
@@ -56,80 +50,82 @@ const login = asyncErrorHandler(async (req, res) => {
     });
   }
 
-  const isPassword=await bcrypt.compare(password,user?.password)
+  const isPassword = await bcrypt.compare(password, user?.password);
   if (!isPassword) {
     return res.status(STATUS_CODES.UNAUTHORIZED).json({
       statusCode: STATUS_CODES.UNAUTHORIZED,
-      message: 'Invalid email or password',
+      message: "Invalid email or password",
     });
   }
-   let token = generateToken(user);
-    res.cookie("token", token, {
-      maxAge: 5 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-    
+  let token = generateToken(user);
+  res.cookie("token", token, {
+    maxAge: 5 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  });
 
-    res.status(STATUS_CODES.SUCCESS).json({
-      statusCode: STATUS_CODES.SUCCESS,
-      message: TEXTS.LOGIN,
-      data:user
-    });
-  
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.LOGIN,
+    data: user,
+  });
 });
 
 const logout = asyncErrorHandler(async (req, res) => {
-
-    res.cookie("token","",{
-      maxAge:0
-    })
-  
-    res.status(STATUS_CODES.SUCCESS).json({
-      statusCode: STATUS_CODES.SUCCESS,
-      message: TEXTS.LOGOUT
-    });
-  
-});
-const updateProfile = asyncErrorHandler(async (req, res) => {
-  
-  const image=req.file
-  
-  if (!image) {
-    return res.status(STATUS_CODES.REQUIRED).json({ statusCode: STATUS_CODES.REQUIRED,message: "Image is required" });
-  }
-
-  const uploadresponse=await cloudinary.uploader.upload(image.path)
-  const data = await User.update({profilePic:uploadresponse.secure_url}, {
-    where: {
-      id: req.user.id,
-    },
-    returning: true,
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    maxAge: 0,
   });
 
-  
-    res.status(STATUS_CODES.SUCCESS).json({
-      statusCode: STATUS_CODES.SUCCESS,
-      message: TEXTS.UPDATED,
-      data:data
-    });
-  
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.LOGOUT,
+  });
+});
+const updateProfile = asyncErrorHandler(async (req, res) => {
+  const image = req.file;
+
+  if (!image) {
+    return res
+      .status(STATUS_CODES.REQUIRED)
+      .json({
+        statusCode: STATUS_CODES.REQUIRED,
+        message: "Image is required",
+      });
+  }
+
+  const uploadresponse = await cloudinary.uploader.upload(image.path);
+  const data = await User.update(
+    { profilePic: uploadresponse.secure_url },
+    {
+      where: {
+        id: req.user.id,
+      },
+      returning: true,
+    }
+  );
+
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.UPDATED,
+    data: data,
+  });
 });
 
 const checkAuth = asyncErrorHandler(async (req, res) => {
-  console.log(req.user)
-    res.status(STATUS_CODES.SUCCESS).json({
-      statusCode: STATUS_CODES.SUCCESS,
-      message: TEXTS.VERIFIED,
-      data:req.user
-    });
-  
+  console.log(req.user);
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.VERIFIED,
+    data: req.user,
+  });
 });
-
 
 module.exports = {
   signup,
   login,
   logout,
   updateProfile,
-  checkAuth
+  checkAuth,
 };

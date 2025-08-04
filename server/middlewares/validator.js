@@ -1,6 +1,7 @@
 module.exports.validate = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
+    console.log("Received body in validator:", req.body); // ⬅️ Add this
     if (error) {
       const errorMsg = error.details[0].message;
       const err = errorMsg.replace(/"/g, "");
