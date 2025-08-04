@@ -149,7 +149,7 @@ const SignUpPage = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full">
+            <button type="submit" className="btn btn-primary w-full" disabled={signingUp}>
               {signingUp ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />

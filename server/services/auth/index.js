@@ -46,7 +46,7 @@ const login = asyncErrorHandler(async (req, res) => {
   if (!user) {
     return res.status(STATUS_CODES.NOT_FOUND).json({
       statusCode: STATUS_CODES.NOT_FOUND,
-      message: TEXTS.NOT_FOUND,
+      message: 'Email doesnot exists'
     });
   }
 
@@ -57,7 +57,9 @@ const login = asyncErrorHandler(async (req, res) => {
       message: "Invalid email or password",
     });
   }
-  let token = generateToken(user);
+  const { profilePic, ...userWithoutPic } = user;
+  let token = generateToken(userWithoutPic);
+
   res.cookie("token", token, {
     maxAge: 5 * 24 * 60 * 60 * 1000,
     httpOnly: true,
@@ -84,19 +86,22 @@ const logout = asyncErrorHandler(async (req, res) => {
   });
 });
 const updateProfile = asyncErrorHandler(async (req, res) => {
+  console.log("in the handler");
   const image = req.file;
 
   if (!image) {
-    return res
-      .status(STATUS_CODES.REQUIRED)
-      .json({
-        statusCode: STATUS_CODES.REQUIRED,
-        message: "Image is required",
-      });
+    return res.status(STATUS_CODES.REQUIRED).json({
+      statusCode: STATUS_CODES.REQUIRED,
+      message: "Image is required",
+    });
   }
 
-  const uploadresponse = await cloudinary.uploader.upload(image.path);
-  const data = await User.update(
+  const base64Image = `data:${image.mimetype};base64,${image.buffer.toString(
+    "base64"
+  )}`;
+  const uploadresponse = await cloudinary.uploader.upload(base64Image);
+
+  await User.update(
     { profilePic: uploadresponse.secure_url },
     {
       where: {
@@ -105,20 +110,23 @@ const updateProfile = asyncErrorHandler(async (req, res) => {
       returning: true,
     }
   );
-
+  const data = await User.findByPk(req.user?.id);
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
-    message: TEXTS.UPDATED,
+    message: 'Profile updated successfully',
     data: data,
   });
 });
 
 const checkAuth = asyncErrorHandler(async (req, res) => {
-  console.log(req.user);
+
+  const user = await User.findByPk(req.user.id);
+
+
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.VERIFIED,
-    data: req.user,
+    data:user,
   });
 });
 
