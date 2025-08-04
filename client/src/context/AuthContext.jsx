@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axiosInstance.get("/auth/checkAuth");
       setAuthUser(response.data);
-      console.log(response.data);
+
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -32,7 +32,6 @@ export const AuthProvider = ({ children }) => {
       setSigningUp(true);
       const response = await axiosInstance.post("/auth/sign-up", formData);
       setAuthUser(response.data);
-      console.log(response.data);
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -51,7 +50,6 @@ export const AuthProvider = ({ children }) => {
       setLogging(true);
       const response = await axiosInstance.post("/auth/login", formData);
       setAuthUser(response.data);
-      console.log(response.data);
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);

@@ -21,13 +21,13 @@ const App = () => {
   }
   return (
     <div>
-      {/* <Navbar/> */}
+      <Navbar/>
             <Toaster  />
       <Routes>
         <Route path='/' element={authUser?<HomePage/>:<Navigate to={'/sign-up'}/>}/>
         <Route path='/sign-up' element={!authUser?<SignUpPage/>:<Navigate to={'/'}/>}/>
         <Route path='/login' element={!authUser?<LoginPage/>:<Navigate to={'/'}/>}/>
-        <Route path='/setting' element={authUser?<SettingPage/>:<Navigate to={'/sign-up'}/>}/>
+        <Route path='/settings' element={authUser?<SettingPage/>:<Navigate to={'/sign-up'}/>}/>
         <Route path='/profile' element={authUser?<ProfilePage/>:<Navigate to={'/sign-up'} />}/>
       </Routes>
     </div>
