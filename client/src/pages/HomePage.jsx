@@ -1,26 +1,23 @@
-import React from "react";
-import { useAuth } from "./../customHooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useChatStore } from "../store/useChatStore";
+import Sidebar from "../components/Sidebar";
+import NoChatSelected from "../components/NoChatSelected";
+import ChatContainer from "../components/ChatContainer";
 
 const HomePage = () => {
-  const { Logout } = useAuth();
-  const navigate = useNavigate();
-  const handleLogout =async () => {
-    await Logout();
-    navigate("/login");
-  };
+  const { selectedUser } = useChatStore();
 
   return (
-    <div className="text-white flex justify-center items-center min-h-screen">
-      <button
-        to={"/sign-up"}
-        className="bg-red-500 px-6 py-3 rounded cursor-pointer hover:bg-red-600 transition"
-        onClick={handleLogout}
-      >
-        LogOut
-      </button>
+    <div className="h-screen bg-base-200">
+      <div className="flex items-center justify-center pt-20 px-4">
+        <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
+          <div className="flex h-full rounded-lg overflow-hidden">
+            <Sidebar />
+
+            {selectedUser ?<ChatContainer />: <NoChatSelected />  }
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
-
 export default HomePage;

@@ -26,7 +26,9 @@ const signup = asyncErrorHandler(async (req, res) => {
     // profilePic:public_id
   };
   const data = await User.create(userData);
-  const token = generateToken(userData);
+  const user = await User.findByPk(data.id, { raw: true }); // plain object (very important)
+   const { profilePic, ...userWithoutPic } = user;
+  let token = generateToken(userWithoutPic);
   res.cookie("token", token, {
     maxAge: 5 * 24 * 60 * 60 * 1000,
     httpOnly: true,
@@ -85,8 +87,8 @@ const logout = asyncErrorHandler(async (req, res) => {
     message: TEXTS.LOGOUT,
   });
 });
+
 const updateProfile = asyncErrorHandler(async (req, res) => {
-  console.log("in the handler");
   const image = req.file;
 
   if (!image) {
@@ -113,7 +115,7 @@ const updateProfile = asyncErrorHandler(async (req, res) => {
   const data = await User.findByPk(req.user?.id);
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
-    message: 'Profile updated successfully',
+    message: 'Profile updateded',
     data: data,
   });
 });

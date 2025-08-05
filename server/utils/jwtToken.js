@@ -5,8 +5,11 @@ module.exports.generateToken = (userData) => {
   return jwt.sign(payLoad, process.env.JWT_SECRETE_KEY, { expiresIn: "5d" });
 };
 
-module.exports.verifyJWTToken = async (token) => {
-    return jwt.verify(token, `${process.env.JWT_SECRETE_KEY}`, (err, decoded) => {
-      return { err: err, decoded: decoded };
+
+module.exports.verifyJWTToken = (token) => {
+  return new Promise((resolve) => {
+    jwt.verify(token, process.env.JWT_SECRETE_KEY, (err, decoded) => {
+      resolve({ err, decoded });
     });
-  };
+  });
+};

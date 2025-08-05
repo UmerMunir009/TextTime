@@ -14,7 +14,7 @@ const getAllUsers = asyncErrorHandler(async (req, res) => {
     attributes: { exclude: ["password"] },
     raw: true,
   });
-
+  console.log(users)
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.DATA_FOUND,

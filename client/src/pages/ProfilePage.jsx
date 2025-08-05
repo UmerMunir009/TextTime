@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../customHooks/useAuth";
 import { Camera, Mail, User } from "lucide-react";
-import { toast } from "react-hot-toast";
 
 const ProfilePage = () => {
   const { authUser, updatingProfile, updateProfile } = useAuth();

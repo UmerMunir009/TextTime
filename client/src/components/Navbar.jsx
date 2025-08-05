@@ -25,7 +25,7 @@ const Navbar = () => {
             <Link
               to={"/settings"}
               className={`
-              btn btn-sm gap-2 transition-colors cursor-pointer
+              btn btn-sm gap-2 transition-colors hidden cursor-pointer
               
               `}
             >
