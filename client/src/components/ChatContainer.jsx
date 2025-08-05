@@ -1,5 +1,5 @@
 import { useChatStore } from "../store/useChatStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -17,8 +17,8 @@ const ChatContainer = () => {
     unsubscribeFromMessages,
   } = useChatStore();
   const { authUser } = useAuth();
-  console.log(authUser);
   const messageEndRef = useRef(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     getMessages(selectedUser.id);
@@ -87,7 +87,8 @@ const ChatContainer = () => {
                   <img
                     src={message?.image}
                     alt="Attachment"
-                    className="sm:max-w-[200px] rounded-md mb-2"
+                    className="sm:max-w-[200px] rounded-md mb-2 cursor-pointer"
+                    onClick={() => setSelectedImage(message?.image)}
                   />
                 )}
                 {message?.text && <p>{message?.text} </p>}
@@ -96,6 +97,18 @@ const ChatContainer = () => {
           );
         })}
       </div>
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <img
+            src={selectedImage}
+            alt="Full View"
+            className="max-w-full max-h-full rounded-lg"
+          />
+        </div>
+      )}
 
       <MessageInput />
     </div>
