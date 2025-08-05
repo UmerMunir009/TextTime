@@ -14,7 +14,6 @@ const getAllUsers = asyncErrorHandler(async (req, res) => {
     attributes: { exclude: ["password"] },
     raw: true,
   });
-  console.log(users)
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.DATA_FOUND,
@@ -39,7 +38,7 @@ const getChat = asyncErrorHandler(async (req, res) => {
       ],
     },
     order: [["createdAt", "ASC"]],
-     attributes: { exclude: ["id"] },
+    attributes: { exclude: ["id"] },
     raw: true,
   });
 
@@ -64,17 +63,20 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
     });
   }
 
-  let imgUrl
+  let imgUrl;
   if (image) {
-    const uploadresponse = await cloudinary.uploader.upload(image.path);
-    imgUrl=uploadresponse.secure_url
+    const base64Image = `data:${image.mimetype};base64,${image.buffer.toString(
+      "base64"
+    )}`;
+    const uploadresponse = await cloudinary.uploader.upload(base64Image);
+    imgUrl = uploadresponse.secure_url;
   }
 
   const message = await Message.create({
     senderId: myId,
     recieverId: userIdToSendMsg,
     text,
-    image:imgUrl
+    image: imgUrl,
   });
   //real-time functionality here
 

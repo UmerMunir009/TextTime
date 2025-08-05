@@ -7,7 +7,8 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  // const { sendMessage } = useChatStore();
+  const [picFile, setPicFile] = useState(null);
+  const { sendMessage } = useChatStore();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -16,11 +17,10 @@ const MessageInput = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+      setPicFile(file);
+    }
   };
 
   const removeImage = () => {
@@ -33,14 +33,16 @@ const MessageInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
-      });
+      const formData = new FormData();
+      formData.append("text", text.trim());
+      formData.append("image", picFile);
+
+      await sendMessage(formData);
 
       // Clear form
       setText("");
       setImagePreview(null);
+      setPicFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -60,7 +62,7 @@ const MessageInput = () => {
             <button
               onClick={removeImage}
               className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              flex items-center justify-center cursor-pointer"
               type="button"
             >
               <X className="size-3" />
@@ -68,8 +70,8 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-     {/* onSubmit={handleSendMessage}  */}
-      <form className="flex items-center gap-2">
+      
+      <form onSubmit={handleSendMessage}  className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
           <input
             type="text"

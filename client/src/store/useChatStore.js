@@ -47,13 +47,20 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-    sendMessage: async (messageData) => {
+    sendMessage: async (formData) => {
       const { selectedUser, messages } = get();
-      try {
-        const res = await axiosInstance.post(`/send/${selectedUser._id}`, messageData);
-        set({ messages: [...messages, res.data] });
+      try { 
+        const res = await axiosInstance.post(`/send/${selectedUser.id}`, formData,{  headers: { "Content-Type": "multipart/form-data" }});
+        set({ messages: [...messages, res.data.data] });
+        console.log([...messages,res.data.data])
       } catch (error) {
+        if (error.response) {
         toast.error(error.response.data.message);
+      } else if (error.request) {
+        toast.error("No response from server.");
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
       }
     },
 

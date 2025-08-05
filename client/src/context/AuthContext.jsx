@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [signingUp, setSigningUp] = useState(false);
   const [logging, setLogging] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [onlineUsers,setOnlineUsers]=useState([])
 
   const checkAuth = async () => {
     try {
@@ -119,6 +120,7 @@ export const AuthProvider = ({ children }) => {
         authUser,
         updateProfile,
         updatingProfile,
+        onlineUsers
       }}
     >
       {children}
