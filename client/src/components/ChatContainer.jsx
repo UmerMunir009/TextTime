@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { useAuth } from "../customHooks/useAuth";
+import { authStore } from "../store/authStore";
 import { formatMessageTime } from "../utils/MessageFormat";
 
 const ChatContainer = () => {
@@ -16,16 +16,14 @@ const ChatContainer = () => {
     subscribeToMessages,
     unsubscribeFromMessages,
   } = useChatStore();
-  const { authUser } = useAuth();
+  const { authUser } = authStore()
   const messageEndRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     getMessages(selectedUser.id);
-
-    // subscribeToMessages();
-
-    // return () => unsubscribeFromMessages();
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
   }, [
     selectedUser.id,
     getMessages,

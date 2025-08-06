@@ -1,8 +1,8 @@
-# 🌐 Real-Time Chat Application
+#  Real-Time Chat Application
 
 A modern full-stack **PERN** (PostgreSQL, Express.js, React, Node.js) real-time chat application built with **Socket.IO**, **Zustand**, **TailwindCSS**, and **DaisyUI**.
 
-## 🚀 Features
+##  Features
 
 -  **Authentication & Authorization**  
   Secure user login and signup with **JWT-based authentication** and route-level authorization.

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useAuth } from "../customHooks/useAuth";
+import { authStore } from "../store/authStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
-  const { onlineUsers } = useAuth();
+  const { onlineUsers } = authStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
  useEffect(() => {
@@ -52,7 +52,7 @@ const Sidebar = () => {
             onClick={() => setSelectedUser(user)}
             className={`
               w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
+              hover:bg-base-300 transition-colors cursor-pointer
               ${
                 selectedUser?.id === user?.id
                   ? "bg-blue-900 ring-1 ring-blue-300 hover:bg-blue-900 transition-colors"

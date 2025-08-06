@@ -7,12 +7,14 @@ import LoginPage from './pages/LoginPage'
 import SettingPage from './pages/SettingPage'
 import ProfilePage from './pages/ProfilePage'
 import { useAuth } from './customHooks/useAuth'
+import { authStore } from './store/authStore'
 import {Loader} from 'lucide-react'
 import { Toaster } from 'react-hot-toast';
 
 
 const App = () => {
-  const {isCheckingAuth,authUser}=useAuth()
+  const {isCheckingAuth}=useAuth()
+  const {authUser}=authStore()
 
   if(isCheckingAuth && !authUser){
     return <div className='flex justify-center items-center h-screen'>

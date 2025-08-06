@@ -2,17 +2,16 @@ import { createContext, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../utils/axios";
 import { io } from "socket.io-client";
+import { authStore } from "../store/authStore";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const { setAuthUser, setSocket, setOnlineUsers,socket } = authStore();
   const [isCheckingAuth, setCheckingAuth] = useState(true);
-  const [authUser, setAuthUser] = useState(null);
   const [signingUp, setSigningUp] = useState(false);
   const [logging, setLogging] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [socket, setSocket] = useState(null);
 
   const checkAuth = async () => {
     try {
@@ -123,14 +122,13 @@ export const AuthProvider = ({ children }) => {
 
     socketInstance.on("getOnlineUsers", (userIds) => {
       setOnlineUsers(userIds); // Replace, don't append
-      console.log("Online users:", userIds);
     });
   };
   const disconnectSocket = () => {
     socket.disconnect();
-    // socket.on('getOnlineUsers',(data)=>{
-    //   setOnlineUsers(data)
-    // })
+    socket.on('getOnlineUsers',(userIds)=>{
+      setOnlineUsers(userIds)
+    })
   };
 
   useEffect(() => {
@@ -146,10 +144,8 @@ export const AuthProvider = ({ children }) => {
         Login,
         Logout,
         isCheckingAuth,
-        authUser,
         updateProfile,
-        updatingProfile,
-        onlineUsers,
+        updatingProfile
       }}
     >
       {children}

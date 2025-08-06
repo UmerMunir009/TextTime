@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../customHooks/useAuth";
 import { Camera, Mail, User } from "lucide-react";
-
+import { authStore } from "../store/authStore";
 const ProfilePage = () => {
-  const { authUser, updatingProfile, updateProfile } = useAuth();
+  const {  updatingProfile, updateProfile } = useAuth();
+  const { authUser } = authStore();
   const [picPreview, setPicPreview] = useState("");  
   const [picFile, setPicFile] = useState(null);
 
