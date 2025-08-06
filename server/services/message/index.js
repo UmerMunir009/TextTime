@@ -2,7 +2,7 @@ const asyncErrorHandler = require("../../utils/asyncErrorHandler");
 const { STATUS_CODES, TEXTS } = require("../../config/constants");
 const cloudinary = require("cloudinary").v2;
 const { User, Message } = require("../../models");
-const {  getIO, getRecieverSocket} = require('../../socket');
+const {  getIO, getUserSocket} = require('../../socket');
 const { Op } = require("sequelize");
 
 const getAllUsers = asyncErrorHandler(async (req, res) => {
@@ -81,10 +81,15 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
   });
 
   //so that user dont need to refresh page on every message
-  const recieverSocket=getRecieverSocket(userIdToSendMsg)
+  const recieverSocket=getUserSocket(userIdToSendMsg)
+  const senderSocket=getUserSocket(myId)
   const io=getIO()
-  if (recieverSocket){
+  if (senderSocket){
+    io.to(senderSocket).emit('newMessage',message)
+  }
+  if(recieverSocket){
     io.to(recieverSocket).emit('newMessage',message)
+
   }
   
 

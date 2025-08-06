@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     setSocket(socketInstance);
 
     socketInstance.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds); // Replace, don't append
+      setOnlineUsers(userIds); 
     });
   };
   const disconnectSocket = () => {

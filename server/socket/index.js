@@ -3,9 +3,11 @@ const { Server } = require("socket.io");
 let io;
 const usersSocketMap = {}; // { userId: socketId }
 
-const getRecieverSocket = (userId) => {
+const getUserSocket = (userId) => {
   return usersSocketMap[userId];
 };
+
+
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
@@ -39,5 +41,5 @@ const initSocket = (server) => {
 module.exports = {
   initSocket,
   getIO: () => io,
-  getRecieverSocket,
+  getUserSocket
 };
