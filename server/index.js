@@ -1,8 +1,9 @@
 const http = require("http");
 const app = require("./app");
 const { sequelize } = require('./models');
+const {initSocket}=require('./socket/index')
 
-const server = http.Server(app);
+const server = http.createServer(app);
 
 const port = process.env.PORT;
 
@@ -10,7 +11,7 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection to PostgreSQL has been established successfully.');
-
+    initSocket(server)
     server.listen(port, () => {
       console.log(`App is listening on port ${port}`);
     });
