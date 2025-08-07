@@ -5,7 +5,7 @@ const {initSocket}=require('./socket/index')
 
 const server = http.createServer(app);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
