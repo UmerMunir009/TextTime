@@ -11,7 +11,7 @@ const getUserSocket = (userId) => {
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173",'https://texttime-production.up.railway.app'],
+      origin: ["http://localhost:5173",'https://texttime-production-21e4.up.railway.app'],
       methods: ["GET", "POST"],
     },
   });

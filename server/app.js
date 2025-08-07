@@ -12,7 +12,7 @@ const cookirParser=require('cookie-parser')
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173','https://texttime-production.up.railway.app'],
+  origin: ['http://localhost:5173','https://texttime-production-21e4.up.railway.app'],
   credentials: true                
 }));
 app.use(cookirParser())
