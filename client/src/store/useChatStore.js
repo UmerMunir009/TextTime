@@ -9,14 +9,15 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: true,
-  isAddingFriend:false,
+  isAddingFriend: false,
+  isTyping: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/users",{ withCredentials: true });
+      const res = await axiosInstance.get("/users", { withCredentials: true });
       set({ users: res.data.data });
-      console.log(res.data.data)
+      console.log(res.data.data);
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -30,14 +31,18 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  addNewFriend:async (email)=>{
-    set({isAddingFriend:true})
-   try {
-    console.log(email)
-      const res = await axiosInstance.post("/add-new-friend",{email},{ withCredentials: true });
-      toast.success(res.data.message)
-      console.log(res.data.data)
-      get().getUsers()
+  addNewFriend: async (email) => {
+    set({ isAddingFriend: true });
+    try {
+      console.log(email);
+      const res = await axiosInstance.post(
+        "/add-new-friend",
+        { email },
+        { withCredentials: true }
+      );
+      toast.success(res.data.message);
+      console.log(res.data.data);
+      get().getUsers();
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -51,11 +56,12 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/${userId}`,{ withCredentials: true });
+      const res = await axiosInstance.get(`/${userId}`, {
+        withCredentials: true,
+      });
       set({ messages: res.data.data });
     } catch (error) {
       if (error.response) {
@@ -73,9 +79,9 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (formData) => {
     const { selectedUser, messages } = get();
     try {
-      console.log(formData)
+      console.log(formData);
       await axiosInstance.post(`/send/${selectedUser.id}`, formData, {
-        withCredentials: true ,
+        withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
       // set({ messages: [...messages, res.data.data] });
@@ -102,11 +108,26 @@ export const useChatStore = create((set, get) => ({
 
       const isChatOpenWithSender = selectedUser?.id === newMessage.senderId;
 
-      const shouldUpdateUI =(isSender ) || (isReceiver && isChatOpenWithSender);
+      const shouldUpdateUI = isSender || (isReceiver && isChatOpenWithSender);
 
       if (!shouldUpdateUI) return;
 
       set({ messages: [...messages, newMessage] });
+    });
+  },
+
+  subscribeToTypingIndicator: () => {
+    const socket = authStore.getState().socket;
+    const authUserId = authStore.getState().authUser?.data.id;
+
+    socket.on("typing-indicator", ({ from }) => {
+      const selectedUser = get().selectedUser;
+
+      if (selectedUser?.id === from && from !== authUserId) {
+        set({ isTyping: true });
+
+        setTimeout(() => set({ isTyping: false }), 2000);
+      }
     });
   },
 

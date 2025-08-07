@@ -2,13 +2,15 @@ import { useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { authStore } from "../store/authStore";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const [picFile, setPicFile] = useState(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage,isTyping} = useChatStore();
+  const { socket, authUser } = authStore();
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
 
@@ -72,7 +74,7 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      {isTyping && <div className="text-sm text-green-600 mb-1">Typing...</div>}
+      {isTyping && <div className="text-sm text-green-400 mb-1">Typing...</div>}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
@@ -84,6 +86,11 @@ const MessageInput = () => {
             onChange={(e) => {
               setText(e.target.value);
               setIsTyping(true);
+
+              socket.emit("typing", {
+                from: authUser?.data?.id,
+                to: selectedUser?.id,
+              });
 
               if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current);

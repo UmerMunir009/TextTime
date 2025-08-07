@@ -7,11 +7,13 @@ const getUserSocket = (userId) => {
   return usersSocketMap[userId];
 };
 
-
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173",'https://texttime-production-21e4.up.railway.app'],
+      origin: [
+        "http://localhost:5173",
+        "https://texttime-production-21e4.up.railway.app",
+      ],
       methods: ["GET", "POST"],
     },
   });
@@ -27,6 +29,10 @@ const initSocket = (server) => {
     //emitting to all connected  that this user became online
     io.emit("getOnlineUsers", Object.keys(usersSocketMap));
 
+    socket.on("typing", ({ from, to }) => {
+      socket.to(to).emit("typing-indicator", { from });
+    });
+
     // Handle disconnect
     socket.on("disconnect", () => {
       console.log("🔴Client disconnected:", socket.id);
@@ -41,5 +47,5 @@ const initSocket = (server) => {
 module.exports = {
   initSocket,
   getIO: () => io,
-  getUserSocket
+  getUserSocket,
 };
