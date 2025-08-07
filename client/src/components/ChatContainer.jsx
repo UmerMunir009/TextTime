@@ -89,7 +89,7 @@ const ChatContainer = () => {
                     onClick={() => setSelectedImage(message?.image)}
                   />
                 )}
-                {message?.text && <p className="text-[10px] sm:text-md">{message?.text} </p>}
+                {message?.text && <p className="text-sm sm:text-md">{message?.text} </p>}
               </div>
             </div>
           );
