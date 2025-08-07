@@ -73,6 +73,7 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (formData) => {
     const { selectedUser, messages } = get();
     try {
+      console.log(formData)
       await axiosInstance.post(`/send/${selectedUser.id}`, formData, {
         withCredentials: true ,
         headers: { "Content-Type": "multipart/form-data" },
