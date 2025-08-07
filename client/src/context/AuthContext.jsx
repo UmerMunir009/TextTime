@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const connectSocket = (id) => {
-    const socketInstance = io("http://localhost:3000", {
+    const socketInstance = io(import.meta.env.VITE_BASE_URL, {
       query: {
         userId: id,
       },
