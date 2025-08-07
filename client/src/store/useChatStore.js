@@ -14,7 +14,7 @@ export const useChatStore = create((set, get) => ({
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/users");
+      const res = await axiosInstance.get("/users",{ withCredentials: true });
       set({ users: res.data.data });
       console.log(res.data.data)
     } catch (error) {
@@ -34,7 +34,7 @@ export const useChatStore = create((set, get) => ({
     set({isAddingFriend:true})
    try {
     console.log(email)
-      const res = await axiosInstance.post("/add-new-friend",{email});
+      const res = await axiosInstance.post("/add-new-friend",{email},{ withCredentials: true });
       toast.success(res.data.message)
       console.log(res.data.data)
       get().getUsers()
@@ -55,7 +55,7 @@ export const useChatStore = create((set, get) => ({
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/${userId}`);
+      const res = await axiosInstance.get(`/${userId}`,{ withCredentials: true });
       set({ messages: res.data.data });
     } catch (error) {
       if (error.response) {
@@ -73,7 +73,7 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (formData) => {
     const { selectedUser, messages } = get();
     try {
-      await axiosInstance.post(`/send/${selectedUser.id}`, formData, {
+      await axiosInstance.post(`/send/${selectedUser.id}`, formData, { withCredentials: true },{
         headers: { "Content-Type": "multipart/form-data" },
       });
       // set({ messages: [...messages, res.data.data] });

@@ -32,6 +32,8 @@ const signup = asyncErrorHandler(async (req, res) => {
   res.cookie("token", token, {
     maxAge: 5 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    sameSite: "none",   // allow cross-site cookie
+  secure: true,       // required when sameSite='none'
   });
 
   res.status(STATUS_CODES.SUCCESS).json({
@@ -65,6 +67,8 @@ const login = asyncErrorHandler(async (req, res) => {
   res.cookie("token", token, {
     maxAge: 5 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    sameSite: "none",   // allow cross-site cookie
+  secure: true,       // required when sameSite='none'
   });
 
   res.status(STATUS_CODES.SUCCESS).json({
@@ -78,7 +82,7 @@ const logout = asyncErrorHandler(async (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
     secure: true,
-    sameSite: "None",
+    sameSite: "none",
     maxAge: 0,
   });
 

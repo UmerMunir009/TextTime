@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await axiosInstance.get("/auth/checkAuth");
+      const response = await axiosInstance.get("/auth/checkAuth",{ withCredentials: true });
       setAuthUser(response.data);
       connectSocket(response.data.data.id); //on refresh,user disconneted from socket so if authenticated then connected again to socket
     } catch (error) {
@@ -94,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       const response = await axiosInstance.put(
         "/auth/update-profile",
         formData,
+        { withCredentials: true },
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       toast.success(response.data.message);
