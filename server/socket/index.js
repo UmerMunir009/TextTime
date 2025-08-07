@@ -13,6 +13,7 @@ const initSocket = (server) => {
     cors: {
       origin: ["http://localhost:5173",'https://text-time.vercel.app'],
       methods: ["GET", "POST"],
+      credentials:true
     },
   });
 
