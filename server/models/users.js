@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Message, {foreignKey: "senderId",as: "senderMessages",});
       User.hasMany(models.Message, {foreignKey: "recieverId",as: "recieverMessages", });
+      User.hasMany(models.Friend, {foreignKey: "user_id",as: "user_friends", });
+      User.hasMany(models.Friend, {foreignKey: "friend_id",as: "friends", });
     }
   }
   User.init({

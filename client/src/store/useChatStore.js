@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../utils/axios";
-import { useEffect } from "react";
 import { authStore } from "./authStore";
 
 export const useChatStore = create((set, get) => ({
@@ -10,12 +9,14 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: true,
+  isAddingFriend:false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/users");
       set({ users: res.data.data });
+      console.log(res.data.data)
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -28,6 +29,28 @@ export const useChatStore = create((set, get) => ({
       set({ isUsersLoading: false });
     }
   },
+
+  addNewFriend:async (email)=>{
+    set({isAddingFriend:true})
+   try {
+    console.log(email)
+      const res = await axiosInstance.post("/add-new-friend",{email});
+      toast.success(res.data.message)
+      console.log(res.data.data)
+      get().getUsers()
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else if (error.request) {
+        toast.error("No response from server.");
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      set({ isAddingFriend: false });
+    }
+  },
+
 
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
@@ -65,6 +88,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  //this is used to show the real-time update in UI i msg sent without refreshing the page
   subscribeToMessages: () => {
     const socket = authStore.getState().socket;
     socket.on("newMessage", (newMessage) => {
@@ -75,11 +99,8 @@ export const useChatStore = create((set, get) => ({
       const isReceiver = newMessage.recieverId === authUserId;
 
       const isChatOpenWithSender = selectedUser?.id === newMessage.senderId;
-      const isChatOpenWithReceiver = selectedUser?.id === newMessage.recieverId;
 
-      const shouldUpdateUI =
-        (isSender && isChatOpenWithReceiver ) ||
-        (isReceiver && isChatOpenWithSender);
+      const shouldUpdateUI =(isSender ) || (isReceiver && isChatOpenWithSender);
 
       if (!shouldUpdateUI) return;
 

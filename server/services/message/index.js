@@ -1,20 +1,32 @@
 const asyncErrorHandler = require("../../utils/asyncErrorHandler");
 const { STATUS_CODES, TEXTS } = require("../../config/constants");
 const cloudinary = require("cloudinary").v2;
-const { User, Message } = require("../../models");
-const {  getIO, getUserSocket} = require('../../socket');
+const { User, Message, Friend } = require("../../models");
+const { getIO, getUserSocket } = require("../../socket");
 const { Op } = require("sequelize");
 
 const getAllUsers = asyncErrorHandler(async (req, res) => {
+  const friends = await Friend.findAll({
+    where: {
+      [Op.or]: [{ user_id: req.user.id }, { friend_id: req.user.id }],
+    },
+    raw: true,
+  });
+
+  const friendUserIds = friends.map((f) => {
+    return f.user_id === req.user.id ? f.friend_id : f.user_id;
+  });
+
+  const uniqueFriendUserIds = [...new Set(friendUserIds)];
+
   const users = await User.findAll({
     where: {
       id: {
-        [Op.ne]: req.user.id,
+        [Op.in]: uniqueFriendUserIds,
       },
     },
-    attributes: { exclude: ["password"] },
-    raw: true,
   });
+
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.DATA_FOUND,
@@ -81,17 +93,15 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
   });
 
   //so that user dont need to refresh page on every message
-  const recieverSocket=getUserSocket(userIdToSendMsg)
-  const senderSocket=getUserSocket(myId)
-  const io=getIO()
-  if (senderSocket){
-    io.to(senderSocket).emit('newMessage',message)
+  const recieverSocket = getUserSocket(userIdToSendMsg);
+  const senderSocket = getUserSocket(myId);
+  const io = getIO();
+  if (senderSocket) {
+    io.to(senderSocket).emit("newMessage", message);
   }
-  if(recieverSocket){
-    io.to(recieverSocket).emit('newMessage',message)
-
+  if (recieverSocket) {
+    io.to(recieverSocket).emit("newMessage", message);
   }
-  
 
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
@@ -105,3 +115,18 @@ module.exports = {
   getChat,
   sendMessage,
 };
+
+// const users = await User.findAll({
+//     where: {
+//       id: {
+//         [Op.ne]: req.user.id,
+//       },
+//     },
+//     attributes: { exclude: ["password"] },
+//     raw: true,
+//   });
+//   res.status(STATUS_CODES.SUCCESS).json({
+//     statusCode: STATUS_CODES.SUCCESS,
+//     message: TEXTS.DATA_FOUND,
+//     data: users,
+//   });

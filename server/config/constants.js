@@ -43,6 +43,7 @@ module.exports = {
       PASSWORD_UPDATED : "Password Updated",
       PROFILE_UPDATED : "Profile Updated",
       UPDATE_FAILED : "Update failed",
-      LOGOUT:'Logout successfully'
+      LOGOUT:'Logout successfully',
+      FRIEND_ADDED:'Friend has been added to your contacts'
     },
   };
