@@ -11,11 +11,18 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable], {
+    ...config,
+    dialectModule: require('pg') // Explicitly specify pg module
+  });
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(config.database, config.username, config.password, {
+    ...config,
+    dialectModule: require('pg') // Explicitly specify pg module
+  });
 }
 
+// Rest of your code remains the same
 fs
   .readdirSync(__dirname)
   .filter(file => {
