@@ -9,6 +9,8 @@ const MessageInput = () => {
   const fileInputRef = useRef(null);
   const [picFile, setPicFile] = useState(null);
   const { sendMessage } = useChatStore();
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -70,6 +72,7 @@ const MessageInput = () => {
           </div>
         </div>
       )}
+      {isTyping && <div className="text-sm text-green-600 mb-1">Typing...</div>}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
@@ -78,7 +81,18 @@ const MessageInput = () => {
             className="w-full input input-bordered rounded-lg input-sm sm:input-md"
             placeholder="Type a message..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              setIsTyping(true);
+
+              if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+              }
+
+              typingTimeoutRef.current = setTimeout(() => {
+                setIsTyping(false);
+              }, 1500); // 1.5 seconds after user stops typing
+            }}
           />
           <input
             type="file"
