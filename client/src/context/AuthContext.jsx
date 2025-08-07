@@ -94,8 +94,7 @@ export const AuthProvider = ({ children }) => {
       const response = await axiosInstance.put(
         "/auth/update-profile",
         formData,
-        { withCredentials: true },
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { withCredentials: true,headers: { "Content-Type": "multipart/form-data" } }
       );
       toast.success(response.data.message);
       setAuthUser(response.data);
