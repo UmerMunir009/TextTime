@@ -12,7 +12,7 @@ const cookirParser=require('cookie-parser')
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default dev server
+  origin: ['http://localhost:5173','https://text-time.vercel.app'],
   credentials: true                
 }));
 app.use(cookirParser())
