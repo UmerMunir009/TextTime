@@ -30,7 +30,10 @@ const initSocket = (server) => {
     io.emit("getOnlineUsers", Object.keys(usersSocketMap));
 
     socket.on("typing", ({ from, to }) => {
-      socket.to(to).emit("typing-indicator", { from });
+      const recieverSocket=getUserSocket(to)
+      if(recieverSocket){
+      socket.to(recieverSocket).emit("typing-indicator", { from });
+      }
     });
 
     // Handle disconnect

@@ -116,6 +116,10 @@ export const useChatStore = create((set, get) => ({
     });
   },
 
+  unsubscribeFromMessages: () => {
+    const socket = authStore.getState().socket;
+    socket.off("newMessage");
+  },
   subscribeToTypingIndicator: () => {
     const socket = authStore.getState().socket;
     const authUserId = authStore.getState().authUser?.data.id;
@@ -126,14 +130,13 @@ export const useChatStore = create((set, get) => ({
       if (selectedUser?.id === from && from !== authUserId) {
         set({ isTyping: true });
 
-        setTimeout(() => set({ isTyping: false }), 2000);
+        setTimeout(() => set({ isTyping: false }), 2500);
       }
     });
   },
-
-  unsubscribeFromMessages: () => {
+  unsubscribeToTypingIndicator: () => {
     const socket = authStore.getState().socket;
-    socket.off("newMessage");
+    socket.off("typing-indicator");
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
