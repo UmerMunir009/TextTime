@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model, Sequelize
-} = require('sequelize');
+"use strict";
+const { Model, Sequelize } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -10,14 +8,24 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      User.hasMany(models.Message, {foreignKey: "senderId",as: "senderMessages",});
-      User.hasMany(models.Message, {foreignKey: "recieverId",as: "recieverMessages", });
-      User.hasMany(models.Friend, {foreignKey: "user_id",as: "user_friends", });
-      User.hasMany(models.Friend, {foreignKey: "friend_id",as: "friends", });
+      User.hasMany(models.Message, {
+        foreignKey: "senderId",
+        as: "senderMessages",
+      });
+      User.hasMany(models.Message, {
+        foreignKey: "recieverId",
+        as: "recieverMessages",
+      });
+      User.hasMany(models.Friend, {
+        foreignKey: "user_id",
+        as: "user_friends",
+      });
+      User.hasMany(models.Friend, { foreignKey: "friend_id", as: "friends" });
     }
   }
-  User.init({
-     id: {
+  User.init(
+    {
+      id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
         allowNull: false,
@@ -25,25 +33,31 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull:false
+        allowNull: false,
       },
-      email:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        unique:true
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
-      password:{
-        type:Sequelize.STRING,
-        allowNull:false
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      profilePic:{
-        type:Sequelize.STRING,
-        defaultValue:''
+      profilePic: {
+        type: Sequelize.STRING,
+        defaultValue: "",
       },
-  }, {
-    sequelize,
-    tableName: 'users',
-    modelName: 'User',
-  });
+      last_seen: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      tableName: "users",
+      modelName: "User",
+    }
+  );
   return User;
 };

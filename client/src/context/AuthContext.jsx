@@ -3,11 +3,13 @@ import { toast } from "react-hot-toast";
 import axiosInstance from "../utils/axios";
 import { io } from "socket.io-client";
 import { authStore } from "../store/authStore";
+import { useChatStore } from "../store/useChatStore";
+import { formatHeaderTime } from "../utils/HeaderFormat";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { setAuthUser, setSocket, setOnlineUsers,socket } = authStore();
+  const { setAuthUser, setSocket, setOnlineUsers, socket } = authStore();
   const [isCheckingAuth, setCheckingAuth] = useState(true);
   const [signingUp, setSigningUp] = useState(false);
   const [logging, setLogging] = useState(false);
@@ -15,7 +17,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await axiosInstance.get("/auth/checkAuth",{ withCredentials: true });
+      const response = await axiosInstance.get("/auth/checkAuth", {
+        withCredentials: true,
+      });
       setAuthUser(response.data);
       connectSocket(response.data.data.id); //on refresh,user disconneted from socket so if authenticated then connected again to socket
     } catch (error) {
@@ -94,7 +98,10 @@ export const AuthProvider = ({ children }) => {
       const response = await axiosInstance.put(
         "/auth/update-profile",
         formData,
-        { withCredentials: true,headers: { "Content-Type": "multipart/form-data" } }
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
       toast.success(response.data.message);
       setAuthUser(response.data);
@@ -121,14 +128,20 @@ export const AuthProvider = ({ children }) => {
     setSocket(socketInstance);
 
     socketInstance.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds); 
+      setOnlineUsers(userIds);
     });
+   socketInstance.on("userLastseen", ({ lastseen, userId }) => {
+    useChatStore.getState().setLastSeenForUser(
+      userId,
+      formatHeaderTime(lastseen)
+    );
+  });
   };
   const disconnectSocket = () => {
     socket.disconnect();
-    socket.on('getOnlineUsers',(userIds)=>{
-      setOnlineUsers(userIds)
-    })
+    socket.on("getOnlineUsers", (userIds) => {
+      setOnlineUsers(userIds);
+    });
   };
 
   useEffect(() => {
@@ -145,7 +158,7 @@ export const AuthProvider = ({ children }) => {
         Logout,
         isCheckingAuth,
         updateProfile,
-        updatingProfile
+        updatingProfile,
       }}
     >
       {children}

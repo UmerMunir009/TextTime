@@ -3,7 +3,7 @@ import { authStore } from "../store/authStore";
 import { useChatStore } from "../store/useChatStore";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser,lastSeenMap } = useChatStore();
   const { onlineUsers } = authStore();
 
   return (
@@ -21,7 +21,9 @@ const ChatHeader = () => {
           <div>
             <h3 className="font-medium">{selectedUser?.name}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser.id) ? "Online" : "Offline"}
+              {onlineUsers.includes(selectedUser.id)
+                ? "Online"
+                : lastSeenMap[selectedUser.id] || "Offline"}
             </p>
           </div>
         </div>

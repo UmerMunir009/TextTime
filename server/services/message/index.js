@@ -33,6 +33,14 @@ const getAllUsers = asyncErrorHandler(async (req, res) => {
     data: users,
   });
 });
+const getLastSeens = asyncErrorHandler(async (req, res) => {
+   const users = await User.findAll({attributes: ['id', 'last_seen']});
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.DATA_FOUND,
+    data: users,
+  });
+});
 
 const getChat = asyncErrorHandler(async (req, res) => {
   const { id: userToChatId } = req.params;
@@ -114,6 +122,7 @@ module.exports = {
   getAllUsers,
   getChat,
   sendMessage,
+  getLastSeens
 };
 
 // const users = await User.findAll({

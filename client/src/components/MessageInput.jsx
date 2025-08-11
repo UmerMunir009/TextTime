@@ -81,7 +81,7 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      {isTyping && <div className="text-sm text-green-900 mb-1">{selectedUser?.name} is typing...</div>}
+      {isTyping && <div className="text-sm text-green-400 mb-1">{selectedUser?.name} is typing...</div>}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">

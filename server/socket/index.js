@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const {User} =require('../models');
 
 let io;
 const usersSocketMap = {}; // { userId: socketId }
@@ -20,7 +21,6 @@ const initSocket = (server) => {
 
   io.on("connection", (socket) => {
     console.log("🟢New client connected:", socket.id);
-
     //updating onlineUsers map
     const userId = socket.handshake.query.userId;
     if (userId) {
@@ -37,11 +37,16 @@ const initSocket = (server) => {
     });
 
     // Handle disconnect
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log("🔴Client disconnected:", socket.id);
-      //removing the user that got disconected
+
+      const lastseen=new Date()
+      await User.update({last_seen:lastseen},{where:{id:userId}})
+
+        //removing the user that got disconected
       delete usersSocketMap[userId];
       io.emit("getOnlineUsers", Object.keys(usersSocketMap));
+      io.emit('userLastseen',{lastseen,userId})
     });
   });
 };

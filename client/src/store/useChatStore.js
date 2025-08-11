@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../utils/axios";
 import { authStore } from "./authStore";
+import { formatHeaderTime } from "../utils/HeaderFormat";
+
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -11,13 +13,34 @@ export const useChatStore = create((set, get) => ({
   isMessagesLoading: true,
   isAddingFriend: false,
   isTyping: false,
+  lastSeenMap: {},
+
+  getLastSeens: async () => {
+    try {
+      const lastSeenObj = {};
+      const res = await axiosInstance.get("/last-seens");      
+      res.data.data.forEach((user) => {
+      lastSeenObj[user.id] = formatHeaderTime(user.last_seen);
+    });
+      set({ lastSeenMap: lastSeenObj });
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else if (error.request) {
+        toast.error("No response from server.");
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    }
+  },
 
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/users", { withCredentials: true });
       set({ users: res.data.data });
-      console.log(res.data.data);
+      
+
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -27,6 +50,7 @@ export const useChatStore = create((set, get) => ({
         toast.error("Unexpected error occurred.");
       }
     } finally {
+      get().getLastSeens()
       set({ isUsersLoading: false });
     }
   },
@@ -34,14 +58,14 @@ export const useChatStore = create((set, get) => ({
   addNewFriend: async (email) => {
     set({ isAddingFriend: true });
     try {
-      console.log(email);
+
       const res = await axiosInstance.post(
         "/add-new-friend",
         { email },
         { withCredentials: true }
       );
       toast.success(res.data.message);
-      console.log(res.data.data);
+
       get().getUsers();
     } catch (error) {
       if (error.response) {
@@ -79,7 +103,6 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (formData) => {
     const { selectedUser, messages } = get();
     try {
-      console.log(formData);
       await axiosInstance.post(`/send/${selectedUser.id}`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
@@ -120,6 +143,7 @@ export const useChatStore = create((set, get) => ({
     const socket = authStore.getState().socket;
     socket.off("newMessage");
   },
+
   subscribeToTypingIndicator: () => {
     const socket = authStore.getState().socket;
     const authUserId = authStore.getState().authUser?.data.id;
@@ -140,4 +164,12 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
+
+  setLastSeenForUser: (userId, time) =>
+    set((state) => ({
+      lastSeenMap: {
+        ...state.lastSeenMap,
+        [userId]: time,
+      },
+    })),
 }));

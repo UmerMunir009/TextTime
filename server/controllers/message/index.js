@@ -4,6 +4,7 @@ const {upload}=require('../../utils/multer')
 
 
 router.get("/users", messageServices.getAllUsers); 
+router.get("/last-seens", messageServices.getLastSeens); 
 router.get("/:id", messageServices.getChat); 
 router.post("/send/:id",upload.single('image'), messageServices.sendMessage); 
 
