@@ -13,6 +13,9 @@ A modern full-stack **PERN** (PostgreSQL, Express.js, React, Node.js) real-time 
 - **Online User Status**  
   Display which users are online in real time and dynamically update their status as they join or disconnect.
 
+- **Last Seen status**  
+  Display when the user last time visited the website.
+
 -  **Add Contacts by Email**  
   Easily add new contacts to your chat list using their registered email address.
 

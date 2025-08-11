@@ -6,6 +6,7 @@ import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
 import SettingPage from './pages/SettingPage'
 import ProfilePage from './pages/ProfilePage'
+import UserProfilePage from './pages/UserProfilePage'
 import { useAuth } from './customHooks/useAuth'
 import { authStore } from './store/authStore'
 import {Loader} from 'lucide-react'
@@ -31,6 +32,7 @@ const App = () => {
         <Route path='/login' element={!authUser?<LoginPage/>:<Navigate to={'/'}/>}/>
         <Route path='/settings' element={authUser?<SettingPage/>:<Navigate to={'/sign-up'}/>}/>
         <Route path='/profile' element={authUser?<ProfilePage/>:<Navigate to={'/sign-up'} />}/>
+        <Route path='/user-profile' element={authUser?<UserProfilePage/>:<Navigate to={'/sign-up'} />}/>
       </Routes>
     </div>
   )
