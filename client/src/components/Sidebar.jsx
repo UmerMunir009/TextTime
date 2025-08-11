@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { authStore } from "../store/authStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import { Mail, Users } from "lucide-react";
+import {  Mail, Users } from "lucide-react";
 import { toast } from "react-hot-toast";
+import {useNavigate} from 'react-router-dom'
 
 
 const Sidebar = () => {
@@ -20,6 +21,7 @@ const Sidebar = () => {
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const navigation=useNavigate()
 
   useEffect(() => {
     getUsers();
@@ -65,6 +67,7 @@ const Sidebar = () => {
           >
             +
           </button>
+         
 
           {isModalOpen && (
             <div className="fixed inset-0 z-50 flex justify-center items-center mx-5 ">
@@ -123,6 +126,12 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+         <button
+           onClick={()=>navigation('/groups')}
+            className="text-sm cursor-pointer bg-blue-900 w-[100%] rounded-sm py-2 mt-2"
+          >
+            Groups
+          </button>
         {/*  Online filter toggle */}
         <div className="mt-3 flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
