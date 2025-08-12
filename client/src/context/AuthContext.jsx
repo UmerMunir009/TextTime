@@ -141,7 +141,18 @@ export const AuthProvider = ({ children }) => {
   socketInstance.on("group-created-notification", ({ by,plainGroupInfo }) => {
     console.log(by)
     console.log(plainGroupInfo)
-    toast.success(`You are added in group ${plainGroupInfo?.name} by ${by?.name}`)
+   toast((t) => (
+  <span className="text-sm flex items-center">
+    You are added in group {plainGroupInfo?.name} by {by?.name}
+    <button
+      onClick={() => toast.dismiss(t.id)}
+      className="ml-2 bg-blue-900 cursor-pointer text-white px-2 py-0.5 rounded text-xs"
+    >
+      Dismiss
+    </button>
+  </span>
+));
+
     useChatStore.setState((state) => ({
     groups: [ plainGroupInfo,...state.groups],
   }));
