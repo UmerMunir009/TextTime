@@ -11,7 +11,7 @@ export const useChatStore = create(
       messages: [],
       users: [],
       groups: [],
-      groupMembers:[],
+      groupMembers: [],
       selectedUser: null,
       selectedGroup: null,
       isUsersLoading: false,
@@ -19,8 +19,8 @@ export const useChatStore = create(
       isAddingFriend: false,
       isTyping: false,
       isCreatingGroup: false,
-      isGroupsLoading:false,
-      updatingGroupInfo:false,
+      isGroupsLoading: false,
+      updatingGroupInfo: false,
       lastSeenMap: {},
 
       getLastSeens: async () => {
@@ -127,13 +127,20 @@ export const useChatStore = create(
       createNewGroup: async ({ name, description, members }) => {
         set({ isCreatingGroup: true });
         try {
+          const socket = authStore.getState().socket;
+          const user = authStore.getState().authUser?.data;
           const res = await axiosInstance.post("/create-group", {
             name,
             description,
             members,
           });
           toast.success(res.data.message);
-          console.log(res.data.data);
+
+          socket.emit("group-created", {
+            by: user,
+            members: members,
+            groupId: res?.data?.data?.id,
+          });
         } catch (error) {
           if (error.response) {
             toast.error(error.response.data.message);
@@ -168,7 +175,9 @@ export const useChatStore = create(
       getGroupMembers: async () => {
         try {
           const { selectedGroup } = get();
-          const res = await axiosInstance.get(`/get-group-members/${selectedGroup?.id}`);
+          const res = await axiosInstance.get(
+            `/get-group-members/${selectedGroup?.id}`
+          );
           set({ groupMembers: res.data.data });
         } catch (error) {
           if (error.response) {
@@ -178,9 +187,8 @@ export const useChatStore = create(
           } else {
             toast.error("Unexpected error occurred.");
           }
-        } 
+        }
       },
-      
 
       subscribeToMessages: () => {
         const socket = authStore.getState().socket;
@@ -238,7 +246,7 @@ export const useChatStore = create(
       name: "chat-storage",
       partialize: (state) => ({
         selectedUser: state.selectedUser,
-        selectedGroup:state.selectedGroup
+        selectedGroup: state.selectedGroup,
       }),
     }
   )

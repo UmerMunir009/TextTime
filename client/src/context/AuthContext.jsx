@@ -137,6 +137,18 @@ export const AuthProvider = ({ children }) => {
       formatHeaderTime(lastseen)
     );
   });
+
+  socketInstance.on("group-created-notification", ({ by,plainGroupInfo }) => {
+    console.log(by)
+    console.log(plainGroupInfo)
+    toast.success(`You are added in group ${plainGroupInfo?.name} by ${by?.name}`)
+    useChatStore.setState((state) => ({
+    groups: [ plainGroupInfo,...state.groups],
+  }));
+    
+  });
+
+
   };
   const disconnectSocket = () => {
     socket.disconnect();

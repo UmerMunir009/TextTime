@@ -1,11 +1,22 @@
 import { FolderPen } from "lucide-react";
 import React, { useState } from "react";
 import { useChatStore } from "../store/useChatStore";
+import { authStore } from "../store/authStore";
 import { useEffect } from "react";
 import GroupChatContainer from "../components/GroupChatContainer";
 
 const GroupPage = () => {
-  const { users, getUsers, createNewGroup, isCreatingGroup,getUserGroups,groups,selectedGroup,setSelectedGroup } = useChatStore();
+  const {
+    users,
+    getUsers,
+    createNewGroup,
+    isCreatingGroup,
+    getUserGroups,
+    groups,
+    selectedGroup,
+    setSelectedGroup,
+  } = useChatStore();
+  const { authUser, socket } = authStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isListMModelOpen, setIsListMModelOpen] = useState(false);
   const [name, setName] = useState("");
@@ -25,13 +36,14 @@ const GroupPage = () => {
     await createNewGroup({ name, description, members: selectedUserIds });
     setIsListMModelOpen(false);
     setIsModalOpen(false);
-    setName('')
-    setDescription('')
-    setSelectedUserIds([])
-    getUserGroups()
+    setName("");
+    setDescription("");
+    setSelectedUserIds([]);
+    getUserGroups(); //fetching groups again after group creation
+    
   };
   useEffect(() => {
-    getUserGroups()
+    getUserGroups();
     getUsers();
   }, []);
 
@@ -48,13 +60,19 @@ const GroupPage = () => {
         >
           Create New Group
         </button>
-        <h1 className={`${groups.length === 0 ?'mt-8 text-xl hidden':'mt-8 text-xl'}`}>Groups</h1>
+        <h1
+          className={`${
+            groups.length === 0 ? "mt-8 text-xl hidden" : "mt-8 text-xl"
+          }`}
+        >
+          Groups
+        </h1>
         <div className="flex-1  overflow-y-auto w-full py-3">
-        {groups.map((group) => (
-          <button
-            key={group?.id}
-            onClick={() => setSelectedGroup(group)}
-            className={`
+          {groups.map((group) => (
+            <button
+              key={group?.id}
+              onClick={() => setSelectedGroup(group)}
+              className={`
               w-full p-3 flex justify-start items-center gap-3
               hover:bg-blue-900 transition-colors cursor-pointer
               ${
@@ -63,21 +81,22 @@ const GroupPage = () => {
                   : ""
               }
             `}
-          >
+            >
               <img
                 src={group?.group_icon || "/avatar.png"}
                 alt={group?.name}
                 className="size-12 object-cover rounded-full"
-              />           
+              />
               <div className="font-medium truncate">{group?.name}</div>
-            
-          </button>
-        ))}
+            </button>
+          ))}
 
-        {groups.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">Create group to start group chatting</div>
-        )}
-      </div>
+          {groups.length === 0 && (
+            <div className="text-center text-zinc-500 py-4">
+              Create group to start group chatting
+            </div>
+          )}
+        </div>
 
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex justify-center items-center mx-5">

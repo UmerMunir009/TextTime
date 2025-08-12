@@ -4,6 +4,8 @@ import {Link} from 'react-router-dom'
 
 const GroupChatHeader = () => {
   const { selectedGroup, setSelectedGroup,groupMembers } = useChatStore();
+   const displayedMembers = groupMembers.slice(0, 3).map(member => member?.name);
+  const more = groupMembers.length - displayedMembers.length;
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -19,7 +21,10 @@ const GroupChatHeader = () => {
           {/* group info */}
           <div>
             <h3 className="font-medium">{selectedGroup?.name}</h3>
-            <p>Memberssss</p>
+             <p className="text-sm text-gray-400 truncate max-w-xs">
+              {displayedMembers.join(", ")}
+              {more > 0 && `, ...`}
+            </p>
            
           </div>
         </Link>

@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
-const {User} =require('../models');
+const { User, Group } = require("../models");
+const { where } = require("sequelize");
 
 let io;
 const usersSocketMap = {}; // { userId: socketId }
@@ -30,23 +31,42 @@ const initSocket = (server) => {
     io.emit("getOnlineUsers", Object.keys(usersSocketMap));
 
     socket.on("typing", ({ from, to }) => {
-      const recieverSocket=getUserSocket(to)
-      if(recieverSocket){
-      socket.to(recieverSocket).emit("typing-indicator", { from });
+      const recieverSocket = getUserSocket(to);
+      if (recieverSocket) {
+        socket.to(recieverSocket).emit("typing-indicator", { from });
       }
+    });
+
+    socket.on("group-created", async({ by, groupId, members }) => {
+      const includeOptions = [{model: User,as: "creator", attributes: ["name", "email", "profilePic"]}];
+      const groupInfo = await Group.findOne({
+          where: { id: groupId },
+          attributes: ["id", "name", "description", "group_icon", "createdAt"],
+          include: includeOptions
+      });
+      const plainGroupInfo = groupInfo.get({ plain: true });
+      members.forEach((userId) => {
+        const recieverSocket = getUserSocket(userId);
+        if (recieverSocket) {
+          io.to(recieverSocket).emit("group-created-notification", {
+            by,
+            plainGroupInfo
+          });
+        }
+      });
     });
 
     // Handle disconnect
     socket.on("disconnect", async () => {
       console.log("🔴Client disconnected:", socket.id);
 
-      const lastseen=new Date()
-      await User.update({last_seen:lastseen},{where:{id:userId}})
+      const lastseen = new Date();
+      await User.update({ last_seen: lastseen }, { where: { id: userId } });
 
-        //removing the user that got disconected
+      //removing the user that got disconected
       delete usersSocketMap[userId];
       io.emit("getOnlineUsers", Object.keys(usersSocketMap));
-      io.emit('userLastseen',{lastseen,userId})
+      io.emit("userLastseen", { lastseen, userId });
     });
   });
 };
