@@ -5,6 +5,7 @@ module.exports = {
       { url: "/auth/login", methods: ["POST"] },
       { url: "/auth/logout", methods: ["POST"] },
       { url: "/last-seens", methods: ["GET"] },
+      // { url: "/create-group", methods: ["POST"] },
     ]
   }
 };

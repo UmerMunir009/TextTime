@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
         as: "user_friends",
       });
       User.hasMany(models.Friend, { foreignKey: "friend_id", as: "friends" });
+      User.hasMany(models.Group, { foreignKey: "created_by", as: "group_creator" });
+      User.hasMany(models.Group_Member, { foreignKey: "user_id", as: "group_members" });
+
     }
   }
   User.init(

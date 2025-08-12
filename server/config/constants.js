@@ -44,6 +44,7 @@ module.exports = {
       PROFILE_UPDATED : "Profile Updated",
       UPDATE_FAILED : "Update failed",
       LOGOUT:'Logout successfully',
-      FRIEND_ADDED:'Friend has been added to your contacts'
+      FRIEND_ADDED:'Friend has been added to your contacts',
+      GROUP_CREATED:'Group created successfully'
     },
   };
