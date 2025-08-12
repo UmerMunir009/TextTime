@@ -12,6 +12,7 @@ import { authStore } from './store/authStore'
 import {Loader} from 'lucide-react'
 import { Toaster } from 'react-hot-toast';
 import GroupPage from './pages/GroupPage'
+import GroupInfoPage from './pages/GroupInfoPage'
 
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
         <Route path='/profile' element={authUser?<ProfilePage/>:<Navigate to={'/sign-up'} />}/>
         <Route path='/user-profile' element={authUser?<UserProfilePage/>:<Navigate to={'/sign-up'} />}/>
         <Route path='/groups' element={authUser?<GroupPage/>:<Navigate to={'/sign-up'} />}/>
+        <Route path='/group-info' element={authUser?<GroupInfoPage/>:<Navigate to={'/sign-up'} />}/>
       </Routes>
     </div>
   )

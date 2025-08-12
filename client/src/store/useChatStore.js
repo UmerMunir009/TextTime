@@ -11,6 +11,7 @@ export const useChatStore = create(
       messages: [],
       users: [],
       groups: [],
+      groupMembers:[],
       selectedUser: null,
       selectedGroup: null,
       isUsersLoading: false,
@@ -19,6 +20,7 @@ export const useChatStore = create(
       isTyping: false,
       isCreatingGroup: false,
       isGroupsLoading:false,
+      updatingGroupInfo:false,
       lastSeenMap: {},
 
       getLastSeens: async () => {
@@ -148,11 +150,8 @@ export const useChatStore = create(
       getUserGroups: async () => {
         set({ isGroupsLoading: true });
         try {
-          console.log('IN THE FUNCTION')
           const res = await axiosInstance.get("/get-groups");
-          console.log(res.data.data);
           set({ groups: res.data.data });
-          console.log('FINISHED')
         } catch (error) {
           if (error.response) {
             toast.error(error.response.data.message);
@@ -165,6 +164,23 @@ export const useChatStore = create(
           set({ isGroupsLoading: false });
         }
       },
+
+      getGroupMembers: async () => {
+        try {
+          const { selectedGroup } = get();
+          const res = await axiosInstance.get(`/get-group-members/${selectedGroup?.id}`);
+          set({ groupMembers: res.data.data });
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        } 
+      },
+      
 
       subscribeToMessages: () => {
         const socket = authStore.getState().socket;
@@ -208,6 +224,7 @@ export const useChatStore = create(
       },
 
       setSelectedUser: (selectedUser) => set({ selectedUser }),
+      setSelectedGroup: (selectedGroup) => set({ selectedGroup }),
 
       setLastSeenForUser: (userId, time) =>
         set((state) => ({
@@ -221,6 +238,7 @@ export const useChatStore = create(
       name: "chat-storage",
       partialize: (state) => ({
         selectedUser: state.selectedUser,
+        selectedGroup:state.selectedGroup
       }),
     }
   )

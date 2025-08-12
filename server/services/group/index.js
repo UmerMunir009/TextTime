@@ -57,7 +57,31 @@ const getGroups = asyncErrorHandler(async (req, res) => {
   });
 });
 
+
+const getMembers = asyncErrorHandler(async (req, res) => {
+  const groupId=req.params.id
+
+  const includeOptions = [
+    {
+      model: User,
+      as: "member",
+      attributes: ["name", "email", "profilePic"] 
+    },
+  ];
+  const data = await Group_Member.findAll({
+    where: { group_id: groupId },
+    include:includeOptions
+  });
+
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.FOUND,
+    data: data.map(record => record.member),
+  });
+});
+
 module.exports = {
   createGroup,
   getGroups,
+  getMembers
 };

@@ -2,6 +2,7 @@ import { FolderPen } from "lucide-react";
 import React, { useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useEffect } from "react";
+import GroupChatContainer from "../components/GroupChatContainer";
 
 const GroupPage = () => {
   const { users, getUsers, createNewGroup, isCreatingGroup,getUserGroups,groups,selectedGroup,setSelectedGroup } = useChatStore();
@@ -33,6 +34,10 @@ const GroupPage = () => {
     getUserGroups()
     getUsers();
   }, []);
+
+  if (selectedGroup) {
+    return <GroupChatContainer />;
+  }
 
   return (
     <div className="h-screen ">
