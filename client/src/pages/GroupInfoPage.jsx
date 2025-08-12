@@ -3,7 +3,7 @@ import { Camera, Mail, User } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 const GroupInfoPage = () => {
-  const { selectedGroup, updatingGroupInfo, groupMembers } = useChatStore();
+  const { selectedGroup, updatingGroupInfo, groupMembers,updateGroupInfo } = useChatStore();
   const members=groupMembers
   const [picPreview, setPicPreview] = useState("");
   const [picFile, setPicFile] = useState(null);
@@ -22,7 +22,7 @@ const GroupInfoPage = () => {
     const formData = new FormData();
     formData.append("image", picFile);
 
-    await updateProfile(formData);
+    await updateGroupInfo(formData);
   };
 
   return (

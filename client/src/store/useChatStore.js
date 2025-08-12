@@ -21,6 +21,7 @@ export const useChatStore = create(
       isCreatingGroup: false,
       isGroupsLoading: false,
       updatingGroupInfo: false,
+      updatingGroupInfo: false,
       lastSeenMap: {},
 
       getLastSeens: async () => {
@@ -190,6 +191,38 @@ export const useChatStore = create(
         }
       },
 
+      updateGroupInfo: async (formData) => {
+        set({ updatingGroupInfo: true });
+        try {
+          const { selectedGroup } = get();
+          const response = await axiosInstance.put(
+            `/update-groupinfo/${selectedGroup?.id}`,
+            formData,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          toast.success(response.data.message);
+          set((state) => ({
+            selectedGroup: {
+              ...state.selectedGroup,
+              group_icon: response?.data.updated_icon,
+            },
+          }));
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        } finally {
+          set({ updatingGroupInfo: false });
+        }
+      },
+
       subscribeToMessages: () => {
         const socket = authStore.getState().socket;
         socket.on("newMessage", (newMessage) => {
@@ -221,7 +254,7 @@ export const useChatStore = create(
           const selectedUser = get().selectedUser;
           if (selectedUser?.id === from && from !== authUserId) {
             set({ isTyping: true });
-            setTimeout(() => set({ isTyping: false }), 2500);
+            setTimeout(() => set({ isTyping: false }), 5000);
           }
         });
       },

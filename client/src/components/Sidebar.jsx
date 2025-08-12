@@ -63,7 +63,7 @@ const Sidebar = () => {
           <span className="font-medium block">Contacts</span>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="text-xl cursor-pointer bg-blue-900 px-5 rounded-lg"
+            className="text-xl cursor-pointer bg-blue-700 px-5 rounded-lg"
           >
             +
           </button>
@@ -128,7 +128,7 @@ const Sidebar = () => {
         </div>
          <button
            onClick={()=>navigation('/groups')}
-            className="text-sm cursor-pointer bg-blue-900 w-[100%] rounded-sm py-2 mt-2"
+            className="text-sm cursor-pointer bg-blue-700 w-[100%] rounded-sm py-2 mt-2"
           >
             Groups
           </button>

@@ -1,6 +1,8 @@
 const asyncErrorHandler = require("../../utils/asyncErrorHandler");
 const { STATUS_CODES, TEXTS } = require("../../config/constants");
 const { Group, Group_Member,User } = require("../../models");
+const cloudinary = require("cloudinary").v2;
+
 
 const createGroup = asyncErrorHandler(async (req, res) => {
   const { name, description, members } = req.body;
@@ -80,8 +82,41 @@ const getMembers = asyncErrorHandler(async (req, res) => {
   });
 });
 
+const updateGroupInfo = asyncErrorHandler(async (req, res) => {
+  const groupId=req.params.id
+  const image = req.file;
+
+  if (!image) {
+    return res.status(STATUS_CODES.REQUIRED).json({
+      statusCode: STATUS_CODES.REQUIRED,
+      message: "Image is required",
+    });
+  }
+
+  const base64Image = `data:${image.mimetype};base64,${image.buffer.toString(
+    "base64"
+  )}`;
+  const uploadresponse = await cloudinary.uploader.upload(base64Image);
+
+  await Group.update(
+    { group_icon: uploadresponse.secure_url },
+    {
+      where: {
+        id: groupId,
+      },
+      returning: true,
+    }
+  );
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: 'Group info updateded',
+    updated_icon: uploadresponse.secure_url,
+  });
+});
+
 module.exports = {
   createGroup,
   getGroups,
-  getMembers
+  getMembers,
+  updateGroupInfo
 };

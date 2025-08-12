@@ -1,4 +1,4 @@
-import { useRef, useState,useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
@@ -8,10 +8,16 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
   const [picFile, setPicFile] = useState(null);
-  const { sendMessage,isTyping,subscribeToTypingIndicator,unsubscribeToTypingIndicator,selectedUser} = useChatStore();
+  const {
+    sendMessage,
+    isTyping,
+    subscribeToTypingIndicator,
+    unsubscribeToTypingIndicator,
+    selectedUser,
+  } = useChatStore();
   const { socket, authUser } = authStore();
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -53,12 +59,9 @@ const MessageInput = () => {
   };
 
   useEffect(() => {
-      subscribeToTypingIndicator();
-      return () => unsubscribeToTypingIndicator();
-    }, [    
-      subscribeToTypingIndicator,
-      unsubscribeToTypingIndicator,
-    ]);
+    subscribeToTypingIndicator();
+    return () => unsubscribeToTypingIndicator();
+  }, [subscribeToTypingIndicator, unsubscribeToTypingIndicator]);
 
   return (
     <div className="p-4 w-full">
@@ -81,7 +84,11 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      {isTyping && <div className="text-sm text-green-400 mb-1">{selectedUser?.name} is typing...</div>}
+      {isTyping && (
+        <div className="text-sm text-green-400 mb-1">
+          {selectedUser?.name} is typing...
+        </div>
+      )}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
@@ -92,11 +99,19 @@ const MessageInput = () => {
             value={text}
             onChange={(e) => {
               setText(e.target.value);
-              socket.emit("typing", {
-                from: authUser?.data?.id,
-                to: selectedUser?.id,
-              });
 
+              // If timer exists, skip emitting until 5s have passed
+              if (!typingTimeoutRef.current) {
+                socket.emit("typing", {
+                  from: authUser?.data?.id,
+                  to: selectedUser?.id,
+                });
+
+                // Lock further emits for 5 seconds
+                typingTimeoutRef.current = setTimeout(() => {
+                  typingTimeoutRef.current = null;
+                }, 5000);
+              }
             }}
           />
           <input

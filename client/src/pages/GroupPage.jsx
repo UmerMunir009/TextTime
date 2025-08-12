@@ -56,7 +56,7 @@ const GroupPage = () => {
       <div className="flex flex-col  justify-start pt-20 px-4 max-w-5xl mx-auto">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="text-sm cursor-pointer bg-blue-900 w-full rounded-sm py-2 mt-2"
+          className="text-sm cursor-pointer bg-blue-700 w-full rounded-sm py-2 mt-2"
         >
           Create New Group
         </button>
