@@ -1,6 +1,6 @@
 const asyncErrorHandler = require("../../utils/asyncErrorHandler");
 const { STATUS_CODES, TEXTS } = require("../../config/constants");
-const { Group, Group_Member,User } = require("../../models");
+const { Group, Group_Member,User,Group_Message} = require("../../models");
 const cloudinary = require("cloudinary").v2;
 
 
@@ -114,9 +114,86 @@ const updateGroupInfo = asyncErrorHandler(async (req, res) => {
   });
 });
 
+
+const sendMessage = asyncErrorHandler(async (req, res) => {
+  const groupId = req.params.id;
+  const senderId = req.user.id;
+  const { text } = req.body;
+  const image = req.file;
+
+  if (!text && !image) {
+    return res.status(STATUS_CODES.REQUIRED).json({
+      statusCode: STATUS_CODES.REQUIRED,
+      message: "Message must include either text or image.",
+    });
+  }
+
+  let imgUrl;
+  if (image) {
+    const base64Image = `data:${image.mimetype};base64,${image.buffer.toString(
+      "base64"
+    )}`;
+    const uploadresponse = await cloudinary.uploader.upload(base64Image);
+    imgUrl = uploadresponse.secure_url;
+  }
+
+  const message = await Group_Message.create({
+    groupId,
+    senderId,
+    text:text,
+    image: imgUrl,
+  });
+
+  //so that user dont need to refresh page on every message
+  // const recieverSocket = getUserSocket(userIdToSendMsg);
+  // const senderSocket = getUserSocket(myId);
+  // const io = getIO();
+  // if (senderSocket) {
+  //   io.to(senderSocket).emit("newMessage", message);
+  // }
+  // if (recieverSocket) {
+  //   io.to(recieverSocket).emit("newMessage", message);
+  // }
+  
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.CREATED,
+    data: message,
+  });
+});
+
+const getChat = asyncErrorHandler(async (req, res) => {
+  const gId = req.params.id;
+  
+  const includeOptions = [
+    {
+      model: User,
+      as: "sender",
+      attributes: ["id","name", "profilePic"] 
+    },
+  ];
+  const messages = await Group_Message.findAll({
+    where: {
+      groupId:gId
+    },
+    include:includeOptions,
+    order: [["createdAt", "ASC"]],
+    attributes: { exclude: ["id","senderId"] }
+  });
+
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: TEXTS.DATA_FOUND,
+    data: messages,
+  });
+});
+
+
 module.exports = {
   createGroup,
   getGroups,
   getMembers,
-  updateGroupInfo
+  updateGroupInfo,
+  sendMessage,
+  getChat
 };

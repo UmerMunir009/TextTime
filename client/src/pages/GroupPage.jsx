@@ -15,6 +15,7 @@ const GroupPage = () => {
     groups,
     selectedGroup,
     setSelectedGroup,
+    isGroupsLoading
   } = useChatStore();
   const { authUser, socket } = authStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +69,7 @@ const GroupPage = () => {
           Groups
         </h1>
         <div className="flex-1  overflow-y-auto w-full py-3">
-          {groups.map((group) => (
+          {!isGroupsLoading?groups.map((group) => (
             <button
               key={group?.id}
               onClick={() => setSelectedGroup(group)}
@@ -89,9 +90,11 @@ const GroupPage = () => {
               />
               <div className="font-medium truncate">{group?.name}</div>
             </button>
-          ))}
+          )):(<div className="flex justify-center items-center">
+          <span className="w-10 h-10 mt-15 rounded-full border-2 border-t-transparent animate-spin text-blue-800"></span>
+        </div>)}
 
-          {groups.length === 0 && (
+          {!isGroupsLoading && groups.length === 0 && (
             <div className="text-center text-zinc-500 py-4">
               Create group to start group chatting
             </div>

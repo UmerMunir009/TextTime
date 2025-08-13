@@ -8,21 +8,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      User.hasMany(models.Message, {
-        foreignKey: "senderId",
-        as: "senderMessages",
-      });
-      User.hasMany(models.Message, {
-        foreignKey: "recieverId",
-        as: "recieverMessages",
-      });
-      User.hasMany(models.Friend, {
-        foreignKey: "user_id",
-        as: "user_friends",
-      });
+      User.hasMany(models.Message, {foreignKey: "senderId",as: "senderMessages"});
+      User.hasMany(models.Message, {foreignKey: "recieverId",as: "recieverMessages"});
+      User.hasMany(models.Friend, {foreignKey: "user_id",as: "user_friends"});
       User.hasMany(models.Friend, { foreignKey: "friend_id", as: "friends" });
       User.hasMany(models.Group, { foreignKey: "created_by", as: "group_creator" });
       User.hasMany(models.Group_Member, { foreignKey: "user_id", as: "group_members" });
+      User.hasMany(models.Group_Message, {foreignKey: "senderId",as: "senderGroupMsgs"});
 
     }
   }

@@ -9,6 +9,7 @@ export const useChatStore = create(
   persist(
     (set, get) => ({
       messages: [],
+      groupMessages:[],
       users: [],
       groups: [],
       groupMembers: [],
@@ -220,6 +221,43 @@ export const useChatStore = create(
           }
         } finally {
           set({ updatingGroupInfo: false });
+        }
+      },
+
+      sendGroupMessage: async (formData) => {
+        const { selectedGroup } = get();
+        try {
+          await axiosInstance.post(`/group/send/${selectedGroup.id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        }
+      },
+
+     getGroupChat: async () => {
+        set({ isMessagesLoading: true });
+        const { selectedGroup } = get();
+        try {
+          const res = await axiosInstance.get(`/group/chat/${selectedGroup.id}`);
+          console.log(res.data.data)
+          set({ groupMessages: res.data.data });
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        } finally {
+          set({ isMessagesLoading: false });
         }
       },
 

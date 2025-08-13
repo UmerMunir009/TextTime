@@ -8,7 +8,7 @@ const GroupChatHeader = () => {
   const more = groupMembers.length - displayedMembers.length;
 
   return (
-    <div className="p-2.5 border-b border-base-300">
+    <div className="p-2.5 border-b border-base-300 bg-blue-900">
       <div className="flex items-center justify-between">
         <Link to={'/group-info'} className="flex items-center gap-3">
           {/* Avatar */}
@@ -21,7 +21,7 @@ const GroupChatHeader = () => {
           {/* group info */}
           <div>
             <h3 className="font-medium">{selectedGroup?.name}</h3>
-             <p className="text-sm text-gray-400 truncate max-w-xs">
+             <p className="text-xs text-gray-400 truncate max-w-xs">
               {displayedMembers.join(", ")}
               {more > 0 && `, ...`}
             </p>
