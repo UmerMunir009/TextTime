@@ -7,16 +7,7 @@ import { authStore } from '../store/authStore';
 import { formatMessageTime } from "../utils/MessageFormat";
 
 export default function GroupChatContainer() {
-  const {
-    getGroupMembers,
-    selectedGroup,
-    getGroupChat,
-    groupMessages,
-    isMessagesLoading,
-    subscribeToGroupMessage,
-    unsubscribeToGroupMessage
-  } = useChatStore();
-
+  const {getGroupMembers,selectedGroup,getGroupChat,groupMessages,isMessagesLoading,subscribeToGroupMessage,unsubscribeToGroupMessage} = useChatStore();
   const { authUser } = authStore();
   const messageEndRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -36,19 +27,30 @@ export default function GroupChatContainer() {
     }
   }, [groupMessages]);
 
-  return (
-    <div className="relative h-screen overflow-hidden">
-
-      {/* Fixed header */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white">
-        <GroupChatHeader />
-      </div>
-
-      {/* Messages container */}
-      <div className="overflow-y-auto h-full px-4 space-y-4 pt-[72px] pb-[64px]">
-        {isMessagesLoading ? (
+  if (isMessagesLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <div className="flex-shrink-0">
+          <GroupChatHeader />
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <MessageSkeleton />
-        ) : groupMessages.length > 0 ? (
+        </div>
+        <div className="flex-shrink-0 bg-base-200">
+          <GroupMsgInput />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-screen">
+  
+      <div className="flex-shrink-0 fixed top-15 left-0 right-0 z-10 bg-white">
+       <GroupChatHeader />
+     </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {groupMessages.length > 0 ? (
           groupMessages.map((message, index) => {
             const isLastMessage = index === groupMessages.length - 1;
             return (
@@ -102,12 +104,10 @@ export default function GroupChatContainer() {
         )}
       </div>
 
-      {/* Fixed input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-base-200">
+      <div className="flex-shrink-0 bg-base-200">
         <GroupMsgInput />
       </div>
 
-      {/* Full image view */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
