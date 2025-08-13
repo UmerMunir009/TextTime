@@ -49,7 +49,7 @@ export default function GroupChatContainer() {
       <div className="flex-shrink-0 fixed top-15 left-0 right-0 z-10 bg-white">
        <GroupChatHeader />
      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 mt-28 mb-5">
         {groupMessages.length > 0 ? (
           groupMessages.map((message, index) => {
             const isLastMessage = index === groupMessages.length - 1;
