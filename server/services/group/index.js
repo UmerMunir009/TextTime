@@ -1,8 +1,8 @@
 const asyncErrorHandler = require("../../utils/asyncErrorHandler");
 const { STATUS_CODES, TEXTS } = require("../../config/constants");
-const { Group, Group_Member,User,Group_Message} = require("../../models");
+const { Group, Group_Member, User, Group_Message } = require("../../models");
 const cloudinary = require("cloudinary").v2;
-
+const { getIO, getUserSocket } = require("../../socket");
 
 const createGroup = asyncErrorHandler(async (req, res) => {
   const { name, description, members } = req.body;
@@ -38,17 +38,21 @@ const getGroups = asyncErrorHandler(async (req, res) => {
     {
       model: Group,
       as: "group",
-      attributes: ["id", "name","description","group_icon","createdAt"],
-      include: [{model: User,as: "creator",attributes: ["name", "email", "profilePic"] 
-        }
-      ]
+      attributes: ["id", "name", "description", "group_icon", "createdAt"],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["name", "email", "profilePic"],
+        },
+      ],
     },
   ];
 
   const data = await Group_Member.findAll({
     where: { user_id: req.user.id },
     include: includeOptions,
-    order: [[{ model: Group, as: "group" }, "createdAt", "DESC"]]
+    order: [[{ model: Group, as: "group" }, "createdAt", "DESC"]],
   });
   const groups = data.map((record) => record.group);
 
@@ -59,31 +63,30 @@ const getGroups = asyncErrorHandler(async (req, res) => {
   });
 });
 
-
 const getMembers = asyncErrorHandler(async (req, res) => {
-  const groupId=req.params.id
+  const groupId = req.params.id;
 
   const includeOptions = [
     {
       model: User,
       as: "member",
-      attributes: ["name", "email", "profilePic"] 
+      attributes: ["id","name", "email", "profilePic"],
     },
   ];
   const data = await Group_Member.findAll({
     where: { group_id: groupId },
-    include:includeOptions
+    include: includeOptions,
   });
 
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.FOUND,
-    data: data.map(record => record.member),
+    data: data.map((record) => record.member),
   });
 });
 
 const updateGroupInfo = asyncErrorHandler(async (req, res) => {
-  const groupId=req.params.id
+  const groupId = req.params.id;
   const image = req.file;
 
   if (!image) {
@@ -109,16 +112,16 @@ const updateGroupInfo = asyncErrorHandler(async (req, res) => {
   );
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
-    message: 'Group info updateded',
+    message: "Group info updateded",
     updated_icon: uploadresponse.secure_url,
   });
 });
-
 
 const sendMessage = asyncErrorHandler(async (req, res) => {
   const groupId = req.params.id;
   const senderId = req.user.id;
   const { text } = req.body;
+  const members = JSON.parse(req.body.members);
   const image = req.file;
 
   if (!text && !image) {
@@ -137,24 +140,40 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
     imgUrl = uploadresponse.secure_url;
   }
 
-  const message = await Group_Message.create({
+  const createdMessage = await Group_Message.create({
     groupId,
     senderId,
-    text:text,
+    text: text,
     image: imgUrl,
   });
 
-  //so that user dont need to refresh page on every message
-  // const recieverSocket = getUserSocket(userIdToSendMsg);
-  // const senderSocket = getUserSocket(myId);
-  // const io = getIO();
+//this is beacause i am fetching previous messages in this format
+  const message = await Group_Message.findOne({
+    where: { id: createdMessage.id },
+    include: [
+      {
+        model: User,
+        as: "sender",
+        attributes: ["id", "name", "profilePic"],
+      },
+    ],
+    attributes: { exclude: ["id", "senderId"] },
+  });
+
+  // so that user dont need to refresh page on every message
+  const io = getIO();
+  // const senderSocket = getUserSocket(senderId);
   // if (senderSocket) {
-  //   io.to(senderSocket).emit("newMessage", message);
+  //   io.to(senderSocket).emit("newGroupMsg", message);
   // }
-  // if (recieverSocket) {
-  //   io.to(recieverSocket).emit("newMessage", message);
-  // }
-  
+  members.forEach((member) => {
+    const recieverSocket=getUserSocket(member?.id)
+    if (recieverSocket) {
+      io.to(recieverSocket).emit("newGroupMsg", message);
+    }
+    
+  });
+ 
   res.status(STATUS_CODES.SUCCESS).json({
     statusCode: STATUS_CODES.SUCCESS,
     message: TEXTS.CREATED,
@@ -164,21 +183,21 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
 
 const getChat = asyncErrorHandler(async (req, res) => {
   const gId = req.params.id;
-  
+
   const includeOptions = [
     {
       model: User,
       as: "sender",
-      attributes: ["id","name", "profilePic"] 
+      attributes: ["id", "name", "profilePic"],
     },
   ];
   const messages = await Group_Message.findAll({
     where: {
-      groupId:gId
+      groupId: gId,
     },
-    include:includeOptions,
+    include: includeOptions,
     order: [["createdAt", "ASC"]],
-    attributes: { exclude: ["id","senderId"] }
+    attributes: { exclude: ["id", "senderId"] },
   });
 
   res.status(STATUS_CODES.SUCCESS).json({
@@ -188,12 +207,11 @@ const getChat = asyncErrorHandler(async (req, res) => {
   });
 });
 
-
 module.exports = {
   createGroup,
   getGroups,
   getMembers,
   updateGroupInfo,
   sendMessage,
-  getChat
+  getChat,
 };

@@ -9,7 +9,7 @@ const GroupMsgInput = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const [picFile, setPicFile] = useState(null);
-  const {sendGroupMessage  } = useChatStore();
+  const {sendGroupMessage,groupMembers } = useChatStore();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -37,6 +37,7 @@ const GroupMsgInput = () => {
       const formData = new FormData();
       formData.append("text", text.trim());
       formData.append("image", picFile);
+      formData.append("members", JSON.stringify(groupMembers));
 
       await sendGroupMessage(formData);
 

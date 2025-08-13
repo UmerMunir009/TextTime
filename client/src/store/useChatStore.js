@@ -9,7 +9,7 @@ export const useChatStore = create(
   persist(
     (set, get) => ({
       messages: [],
-      groupMessages:[],
+      groupMessages: [],
       users: [],
       groups: [],
       groupMembers: [],
@@ -225,11 +225,16 @@ export const useChatStore = create(
       },
 
       sendGroupMessage: async (formData) => {
-        const { selectedGroup } = get();
+        const { selectedGroup,groupMessages } = get();
         try {
-          await axiosInstance.post(`/group/send/${selectedGroup.id}`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
+          const res=await axiosInstance.post(
+            `/group/send/${selectedGroup.id}`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          set({ groupMessages: [...groupMessages, res.data.data] });
         } catch (error) {
           if (error.response) {
             toast.error(error.response.data.message);
@@ -241,12 +246,13 @@ export const useChatStore = create(
         }
       },
 
-     getGroupChat: async () => {
+      getGroupChat: async () => {
         set({ isMessagesLoading: true });
         const { selectedGroup } = get();
         try {
-          const res = await axiosInstance.get(`/group/chat/${selectedGroup.id}`);
-          console.log(res.data.data)
+          const res = await axiosInstance.get(
+            `/group/chat/${selectedGroup.id}`
+          );
           set({ groupMessages: res.data.data });
         } catch (error) {
           if (error.response) {
@@ -282,6 +288,21 @@ export const useChatStore = create(
       unsubscribeFromMessages: () => {
         const socket = authStore.getState().socket;
         socket.off("newMessage");
+      },
+
+      subscribeToGroupMessage: () => {
+        const socket = authStore.getState().socket;
+        socket.on("newGroupMsg", (message) => {
+          const { groupMessages, selectedGroup } = get();
+          const isGroupChatOpen = message?.groupId === selectedGroup?.id;
+          if (!isGroupChatOpen) return;
+          set({ groupMessages: [...groupMessages, message] });
+        });
+      },
+
+      unsubscribeToGroupMessage: () => {
+        const socket = authStore.getState().socket;
+        socket.off("newGroupMsg");
       },
 
       subscribeToTypingIndicator: () => {
