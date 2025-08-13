@@ -160,12 +160,7 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
     attributes: { exclude: ["id", "senderId"] },
   });
 
-  // so that user dont need to refresh page on every message
   const io = getIO();
-  // const senderSocket = getUserSocket(senderId);
-  // if (senderSocket) {
-  //   io.to(senderSocket).emit("newGroupMsg", message);
-  // }
   members.forEach((member) => {
     const recieverSocket=getUserSocket(member?.id)
     if (recieverSocket) {
@@ -207,6 +202,62 @@ const getChat = asyncErrorHandler(async (req, res) => {
   });
 });
 
+const addMember = asyncErrorHandler(async (req, res) => {
+  console.log('In the handler')
+  const gId = req.params.id;
+  const {email,groupMembers}=req.body
+  const user = await User.findOne({ where: { email }, raw: true });
+  
+  if (!user) {
+    return res.status(STATUS_CODES.NOT_FOUND).json({
+      statusCode: STATUS_CODES.NOT_FOUND,
+      message: 'User is not registered on app'
+    });
+  }
+  const exists=await Group_Member.findOne({where:{group_id:gId,user_id:user.id}})
+  
+  if (exists) {
+    return res.status(STATUS_CODES.CONFLICT).json({
+      statusCode: STATUS_CODES.CONFLICT,
+      message: 'User is already in group'
+    });
+  }
+  await Group_Member.create({group_id:gId,user_id:user.id})
+  const group = await Group.findOne({ where: { id:gId }, raw: true });
+
+
+  //real-time notify to other group member :
+  const io = getIO();
+  groupMembers.forEach((member) => {
+  const socketId = getUserSocket(member.id);
+  if (!socketId) return;
+  if (member.id === req.user.id || member.id === user.id) return;
+
+  io.to(socketId).emit("memberAdded", {
+    type: "otherMember",
+    by: req.user.name,
+    newMember: user.name,
+    group: group.name
+  });
+});
+const newMemberSocket = getUserSocket(user.id);
+if (newMemberSocket) {
+  io.to(newMemberSocket).emit("memberAdded", {
+    type: "newMember",
+    by: req.user.name,
+    newMember: user.name,
+    group: group.name
+  });
+}
+
+
+
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: "User added to group",
+  });
+});
+
 module.exports = {
   createGroup,
   getGroups,
@@ -214,4 +265,5 @@ module.exports = {
   updateGroupInfo,
   sendMessage,
   getChat,
+  addMember
 };

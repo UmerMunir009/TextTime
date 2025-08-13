@@ -21,6 +21,7 @@ export const useChatStore = create(
       isTyping: false,
       isCreatingGroup: false,
       isGroupsLoading: false,
+      isAddingMember:false,
       updatingGroupInfo: false,
       updatingGroupInfo: false,
       lastSeenMap: {},
@@ -266,6 +267,30 @@ export const useChatStore = create(
           set({ isMessagesLoading: false });
         }
       },
+
+      addNewMember:async (email)=>{
+        set({ isAddingMember: true });
+        try {
+          const {getGroupMembers,selectedGroup,groupMembers}=get()
+          const res=await axiosInstance.post(`/group/add-member/${selectedGroup?.id}`,{email,groupMembers});
+          await getGroupMembers()
+          toast.success(res.data.message)
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        } finally {
+          set({ isAddingMember: false });
+        }
+
+      },
+
+
+
 
       subscribeToMessages: () => {
         const socket = authStore.getState().socket;

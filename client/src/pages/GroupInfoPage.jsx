@@ -1,12 +1,16 @@
-import { useState } from "react";
-import { Camera, Mail, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Camera, Mail, MailIcon, User } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 const GroupInfoPage = () => {
-  const { selectedGroup, updatingGroupInfo, groupMembers,updateGroupInfo } = useChatStore();
+  const { selectedGroup, updatingGroupInfo, groupMembers,updateGroupInfo,addNewMember,isAddingMember ,getGroupMembers} = useChatStore();
   const members=groupMembers
   const [picPreview, setPicPreview] = useState("");
   const [picFile, setPicFile] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
+
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -24,6 +28,16 @@ const GroupInfoPage = () => {
 
     await updateGroupInfo(formData);
   };
+
+  const handleMemberAdd = async (e) => {
+     e.preventDefault()
+     await addNewMember(email)
+     setIsModalOpen(false)
+  };
+  useEffect(()=>{
+   getGroupMembers()
+  },[])
+  
 
   return (
     <div className="h-screen pt-20">
@@ -98,7 +112,72 @@ const GroupInfoPage = () => {
             </div>
           </div>
           <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium mb-4">Group Members</h2>
+          <div className="flex justify-between items-center">
+              <h2 className="text-lg font-medium mb-4">Group Members</h2>
+              <button onClick={()=>setIsModalOpen(true)} className="bg-blue-900 text-xs p-2 rounded-lg hover:bg-blue-950 cursor-pointer">Add member</button>
+          </div>
+
+           {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex justify-center items-center mx-5 ">
+              <div className="bg-white dark:bg-gray-700 rounded-lg shadow-lg w-full max-w-2xl p-5">
+                {/* Modal Header */}
+                <div className="flex justify-between items-center border-b pb-3">
+                  <h3 className="text-sm sm:text-xl font-semibold text-gray-900 dark:text-white">
+                    Add new member
+                  </h3>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Modal Body */}
+                <form onSubmit={handleMemberAdd}>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium my-2">Email</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <MailIcon className="size-5 text-base-content/40" />
+                      </div>
+                      <input
+                        type="email"
+                        className={`input input-bordered w-full pl-10`}
+                        placeholder="abc@example.com"
+                        value={email}
+                        required={true}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-5 flex justify-end space-x-2 border-t pt-3">
+                  <button
+                  disabled={!email.trim()}
+                    type="submit"
+                    className="bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800"
+                  >
+                    {isAddingMember?'Loading...':'Add'}
+                  </button>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                </form>
+
+                {/* Modal Footer */}
+                
+              </div>
+            </div>
+          )}
+
+
+
             <div className="max-h-60 overflow-y-auto space-y-4 pr-2">
               {
                 [...members]

@@ -6,11 +6,11 @@ import { authStore } from "../store/authStore";
 import { useChatStore } from "../store/useChatStore";
 import { formatHeaderTime } from "../utils/HeaderFormat";
 
-
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const { setAuthUser, setSocket, setOnlineUsers, socket } = authStore();
+  const {getUserGroups}=useChatStore()
   const [isCheckingAuth, setCheckingAuth] = useState(true);
   const [signingUp, setSigningUp] = useState(false);
   const [logging, setLogging] = useState(false);
@@ -131,35 +131,63 @@ export const AuthProvider = ({ children }) => {
     socketInstance.on("getOnlineUsers", (userIds) => {
       setOnlineUsers(userIds);
     });
-   socketInstance.on("userLastseen", ({ lastseen, userId }) => {
-    useChatStore.getState().setLastSeenForUser(
-      userId,
-      formatHeaderTime(lastseen)
+    socketInstance.on("userLastseen", ({ lastseen, userId }) => {
+      useChatStore
+        .getState()
+        .setLastSeenForUser(userId, formatHeaderTime(lastseen));
+    });
+
+    socketInstance.on("memberAdded",async ({ type, by, newMember, group }) => {
+      if (type === "newMember") {
+        toast((t) => (
+          <span className="text-sm flex items-center">
+            You were added to "{group}" by {by}
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-2 bg-blue-900 cursor-pointer text-white px-2 py-0.5 rounded text-xs"
+            >
+              Dismiss
+            </button>
+          </span>
+        ));
+       await getUserGroups()
+      } else if (type === "otherMember") {
+        toast((t) => (
+          <span className="text-sm flex items-center">
+            {newMember} was added to "{group}" by {by}
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-2 bg-blue-900 cursor-pointer text-white px-2 py-0.5 rounded text-xs"
+            >
+              Dismiss
+            </button>
+          </span>
+        ));
+      }
+    });
+
+    socketInstance.on(
+      "group-created-notification",
+      ({ by, plainGroupInfo }) => {
+        console.log(by);
+        console.log(plainGroupInfo);
+        toast((t) => (
+          <span className="text-sm flex items-center">
+            You are added in group {plainGroupInfo?.name} by {by?.name}
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-2 bg-blue-900 cursor-pointer text-white px-2 py-0.5 rounded text-xs"
+            >
+              Dismiss
+            </button>
+          </span>
+        ));
+
+        useChatStore.setState((state) => ({
+          groups: [plainGroupInfo, ...state.groups],
+        }));
+      }
     );
-  });
-
-  socketInstance.on("group-created-notification", ({ by,plainGroupInfo }) => {
-    console.log(by)
-    console.log(plainGroupInfo)
-   toast((t) => (
-  <span className="text-sm flex items-center">
-    You are added in group {plainGroupInfo?.name} by {by?.name}
-    <button
-      onClick={() => toast.dismiss(t.id)}
-      className="ml-2 bg-blue-900 cursor-pointer text-white px-2 py-0.5 rounded text-xs"
-    >
-      Dismiss
-    </button>
-  </span>
-));
-
-    useChatStore.setState((state) => ({
-    groups: [ plainGroupInfo,...state.groups],
-  }));
-    
-  });
-
-
   };
   const disconnectSocket = () => {
     socket.disconnect();
