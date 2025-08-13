@@ -294,8 +294,10 @@ export const useChatStore = create(
         const socket = authStore.getState().socket;
         socket.on("newGroupMsg", (message) => {
           const { groupMessages, selectedGroup } = get();
+          const authUserId = authStore.getState().authUser?.data.id;
+          const isSender = message?.sender.id === authUserId;
           const isGroupChatOpen = message?.groupId === selectedGroup?.id;
-          if (!isGroupChatOpen) return;
+          if (!isGroupChatOpen || isSender) return;
           set({ groupMessages: [...groupMessages, message] });
         });
       },
