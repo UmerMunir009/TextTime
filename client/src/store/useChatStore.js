@@ -21,8 +21,8 @@ export const useChatStore = create(
       isTyping: false,
       isCreatingGroup: false,
       isGroupsLoading: false,
-      isAddingMember:false,
-      isRemovingMember:false,
+      isAddingMember: false,
+      isRemovingMember: false,
       updatingGroupInfo: false,
       updatingGroupInfo: false,
       lastSeenMap: {},
@@ -227,9 +227,9 @@ export const useChatStore = create(
       },
 
       sendGroupMessage: async (formData) => {
-        const { selectedGroup,groupMessages } = get();
+        const { selectedGroup, groupMessages } = get();
         try {
-          const res=await axiosInstance.post(
+          const res = await axiosInstance.post(
             `/groups/${selectedGroup.id}/messages`,
             formData,
             {
@@ -269,13 +269,16 @@ export const useChatStore = create(
         }
       },
 
-      addNewMember:async (email)=>{
+      addNewMember: async (email) => {
         set({ isAddingMember: true });
         try {
-          const {getGroupMembers,selectedGroup,groupMembers}=get()
-          const res=await axiosInstance.post(`/groups/${selectedGroup?.id}/members`,{email,groupMembers});
-          await getGroupMembers()
-          toast.success(res.data.message)
+          const { getGroupMembers, selectedGroup, groupMembers } = get();
+          const res = await axiosInstance.post(
+            `/groups/${selectedGroup?.id}/members`,
+            { email, groupMembers }
+          );
+          await getGroupMembers();
+          toast.success(res.data.message);
         } catch (error) {
           if (error.response) {
             toast.error(error.response.data.message);
@@ -287,17 +290,19 @@ export const useChatStore = create(
         } finally {
           set({ isAddingMember: false });
         }
-
       },
 
-      removeMember:async (email)=>{
+      removeMember: async (email) => {
         set({ isRemovingMember: true });
         try {
-          const {getGroupMembers,selectedGroup}=get()
-          const res=await axiosInstance.delete(`/groups/${selectedGroup?.id}/members`,{data:{email}});
-          await getGroupMembers()
+          const { getGroupMembers, selectedGroup } = get();
+          const res = await axiosInstance.delete(
+            `/groups/${selectedGroup?.id}/members`,
+            { data: { email } }
+          );
+          await getGroupMembers();
 
-          toast.success(res.data.message)
+          toast.success(res.data.message);
         } catch (error) {
           if (error.response) {
             toast.error(error.response.data.message);
@@ -310,10 +315,6 @@ export const useChatStore = create(
           set({ isRemovingMember: false });
         }
       },
-
-
-
-
       subscribeToMessages: () => {
         const socket = authStore.getState().socket;
         socket.on("newMessage", (newMessage) => {
@@ -374,6 +375,7 @@ export const useChatStore = create(
 
       setSelectedUser: (selectedUser) => set({ selectedUser }),
       setSelectedGroup: (selectedGroup) => set({ selectedGroup }),
+     
 
       setLastSeenForUser: (userId, time) =>
         set((state) => ({

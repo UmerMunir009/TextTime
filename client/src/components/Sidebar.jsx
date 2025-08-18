@@ -32,7 +32,7 @@ const Sidebar = () => {
   useEffect(() => {
   if (users.length > 0 && rawOnlineUsers.length > 0) {
     const ids = users.map(u => u.id);
-    const filtered = rawOnlineUsers.filter(id => ids.includes(id));
+    const filtered = rawOnlineUsers.filter(id => ids.includes(id));//user specific online members
     setOnlineUsers(filtered);
   }
 }, [users, rawOnlineUsers]);
