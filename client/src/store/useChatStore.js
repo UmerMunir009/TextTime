@@ -132,7 +132,7 @@ export const useChatStore = create(
         try {
           const socket = authStore.getState().socket;
           const user = authStore.getState().authUser?.data;
-          const res = await axiosInstance.post("/create-group", {
+          const res = await axiosInstance.post("/groups", {
             name,
             description,
             members,
@@ -160,7 +160,7 @@ export const useChatStore = create(
       getUserGroups: async () => {
         set({ isGroupsLoading: true });
         try {
-          const res = await axiosInstance.get("/get-groups");
+          const res = await axiosInstance.get("/groups");
           set({ groups: res.data.data });
         } catch (error) {
           if (error.response) {
@@ -179,7 +179,7 @@ export const useChatStore = create(
         try {
           const { selectedGroup } = get();
           const res = await axiosInstance.get(
-            `/get-group-members/${selectedGroup?.id}`
+            `/groups/${selectedGroup?.id}/members`
           );
           set({ groupMembers: res.data.data });
         } catch (error) {
@@ -198,7 +198,7 @@ export const useChatStore = create(
         try {
           const { selectedGroup } = get();
           const response = await axiosInstance.put(
-            `/update-groupinfo/${selectedGroup?.id}`,
+            `/groups/${selectedGroup?.id}`,
             formData,
             {
               withCredentials: true,
@@ -229,7 +229,7 @@ export const useChatStore = create(
         const { selectedGroup,groupMessages } = get();
         try {
           const res=await axiosInstance.post(
-            `/group/send/${selectedGroup.id}`,
+            `/groups/${selectedGroup.id}/messages`,
             formData,
             {
               headers: { "Content-Type": "multipart/form-data" },
@@ -252,7 +252,7 @@ export const useChatStore = create(
         const { selectedGroup } = get();
         try {
           const res = await axiosInstance.get(
-            `/group/chat/${selectedGroup.id}`
+            `/groups/${selectedGroup.id}/messages`
           );
           set({ groupMessages: res.data.data });
         } catch (error) {
@@ -272,7 +272,7 @@ export const useChatStore = create(
         set({ isAddingMember: true });
         try {
           const {getGroupMembers,selectedGroup,groupMembers}=get()
-          const res=await axiosInstance.post(`/group/add-member/${selectedGroup?.id}`,{email,groupMembers});
+          const res=await axiosInstance.post(`/groups/${selectedGroup?.id}/members`,{email,groupMembers});
           await getGroupMembers()
           toast.success(res.data.message)
         } catch (error) {
