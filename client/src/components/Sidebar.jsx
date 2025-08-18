@@ -5,6 +5,7 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import {  Mail, Users } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {useNavigate} from 'react-router-dom'
+import {useAuth} from './../customHooks/useAuth'
 
 
 const Sidebar = () => {
@@ -17,7 +18,8 @@ const Sidebar = () => {
     isAddingFriend,
     addNewFriend,
   } = useChatStore();
-  const { onlineUsers } = authStore();
+  const { onlineUsers,setOnlineUsers } = authStore();
+  const {rawOnlineUsers}=useAuth()
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -26,6 +28,14 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+
+  useEffect(() => {
+  if (users.length > 0 && rawOnlineUsers.length > 0) {
+    const ids = users.map(u => u.id);
+    const filtered = rawOnlineUsers.filter(id => ids.includes(id));
+    setOnlineUsers(filtered);
+  }
+}, [users, rawOnlineUsers]);
 
   const validateForm = () => {
     if (!email.trim()) {
@@ -49,9 +59,7 @@ const Sidebar = () => {
     }
   };
 
-  const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user.id))
-    : users;
+  const filteredUsers = showOnlineOnly? users.filter((user) => onlineUsers.includes(user.id)): users;
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -144,7 +152,7 @@ const Sidebar = () => {
             <span className="text-sm">Show online only</span>
           </label>
           <span className="text-xs text-zinc-500">
-            ({onlineUsers.length - 1} online)
+            ({onlineUsers.length } online)
           </span>
         </div>
       </div>

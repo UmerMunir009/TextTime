@@ -9,12 +9,13 @@ import { formatHeaderTime } from "../utils/HeaderFormat";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const { setAuthUser, setSocket, setOnlineUsers, socket } = authStore();
+  const { setAuthUser, setSocket, socket } = authStore();
   const {getUserGroups}=useChatStore()
   const [isCheckingAuth, setCheckingAuth] = useState(true);
   const [signingUp, setSigningUp] = useState(false);
   const [logging, setLogging] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [rawOnlineUsers, setRawOnlineUsers] = useState([]);
 
   const checkAuth = async () => {
     try {
@@ -129,8 +130,10 @@ export const AuthProvider = ({ children }) => {
     setSocket(socketInstance);
 
     socketInstance.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds);
-    });
+      setRawOnlineUsers(userIds);
+  });
+
+   
     socketInstance.on("userLastseen", ({ lastseen, userId }) => {
       useChatStore
         .getState()
@@ -192,7 +195,7 @@ export const AuthProvider = ({ children }) => {
   const disconnectSocket = () => {
     socket.disconnect();
     socket.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds);
+      setRawOnlineUsers(userIds);
     });
   };
 
@@ -211,6 +214,7 @@ export const AuthProvider = ({ children }) => {
         isCheckingAuth,
         updateProfile,
         updatingProfile,
+        rawOnlineUsers
       }}
     >
       {children}
