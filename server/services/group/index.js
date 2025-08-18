@@ -3,6 +3,7 @@ const { STATUS_CODES, TEXTS } = require("../../config/constants");
 const { Group, Group_Member, User, Group_Message } = require("../../models");
 const cloudinary = require("cloudinary").v2;
 const { getIO, getUserSocket } = require("../../socket");
+const { where } = require("sequelize");
 
 const createGroup = asyncErrorHandler(async (req, res) => {
   const { name, description, members } = req.body;
@@ -124,6 +125,14 @@ const sendMessage = asyncErrorHandler(async (req, res) => {
   const members = JSON.parse(req.body.members);
   const image = req.file;
 
+  const member=await Group_Member.findOne({where:{group_id:groupId,user_id:senderId}})
+  if(!member){
+     return res.status(STATUS_CODES.CONFLICT).json({
+      statusCode: STATUS_CODES.CONFLICT,
+      message: "You are no longer participant of this group",
+    });
+  }
+
   if (!text && !image) {
     return res.status(STATUS_CODES.REQUIRED).json({
       statusCode: STATUS_CODES.REQUIRED,
@@ -203,7 +212,6 @@ const getChat = asyncErrorHandler(async (req, res) => {
 });
 
 const addMember = asyncErrorHandler(async (req, res) => {
-  console.log('In the handler')
   const gId = req.params.id;
   const {email,groupMembers}=req.body
   const user = await User.findOne({ where: { email }, raw: true });
@@ -258,6 +266,19 @@ if (newMemberSocket) {
   });
 });
 
+
+const removeMember = asyncErrorHandler(async (req, res) => {
+  const gId = req.params.id;
+  const {email}=req.body
+  const user = await User.findOne({ where: { email }, raw: true });
+  await Group_Member.destroy({ where: { group_id:gId,user_id:user.id }});
+
+  res.status(STATUS_CODES.SUCCESS).json({
+    statusCode: STATUS_CODES.SUCCESS,
+    message: `${user.name} has been removed from group`,
+  });
+});
+
 module.exports = {
   createGroup,
   getGroups,
@@ -265,5 +286,6 @@ module.exports = {
   updateGroupInfo,
   sendMessage,
   getChat,
-  addMember
+  addMember,
+  removeMember
 };

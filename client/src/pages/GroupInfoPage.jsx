@@ -3,12 +3,13 @@ import { Camera, Mail, MailIcon, User } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 const GroupInfoPage = () => {
-  const { selectedGroup, updatingGroupInfo, groupMembers,updateGroupInfo,addNewMember,isAddingMember ,getGroupMembers} = useChatStore();
+  const { selectedGroup, updatingGroupInfo, groupMembers,updateGroupInfo,addNewMember,removeMember,isAddingMember ,getGroupMembers} = useChatStore();
   const members=groupMembers
   const [picPreview, setPicPreview] = useState("");
   const [picFile, setPicFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [emailToRemove,setEmailToRemove]=useState('')
 
 
 
@@ -33,6 +34,12 @@ const GroupInfoPage = () => {
      e.preventDefault()
      await addNewMember(email)
      setIsModalOpen(false)
+  };
+  
+  const handleMemberRemove = async (emailToDelete) => {
+    setEmailToRemove(emailToDelete)
+    await removeMember(emailToDelete)
+    setEmailToRemove('')
   };
   useEffect(()=>{
    getGroupMembers()
@@ -196,12 +203,17 @@ const GroupInfoPage = () => {
                         alt={member.name}
                         className="w-10 h-10 rounded-full object-cover"
                       />
-                      <div className="flex flex-col">
+                      <div className="flex flex-col min-w-32 sm:min-w-80">
                         <span className="font-medium">{member.name}</span>
                         <span className="text-sm text-gray-400">
                           {member.email}
                         </span>
                       </div>
+                      {selectedGroup?.creator?.email !== member?.email && (
+                        <button onClick={()=>handleMemberRemove(member?.email)} className="bg-red-900 text-white p-1 rounded text-[9px] cursor-pointer">
+                          {emailToRemove===member?.email?'Removing...':'Remove'}
+                        </button>
+                      )}
                       {selectedGroup?.creator?.email === member?.email && (
                         <div className="bg-green-900 text-white p-1 rounded text-xs">
                           Admin

@@ -10,6 +10,7 @@ router.put("/groups/:id", upload.single("image"), groupServices.updateGroupInfo)
 router.post("/groups/:id/messages", upload.single("image"), groupServices.sendMessage);
 router.get("/groups/:id/messages", groupServices.getChat);
 router.post("/groups/:id/members", groupServices.addMember);
+router.delete("/groups/:id/members", groupServices.removeMember);
 
 
 module.exports = router;

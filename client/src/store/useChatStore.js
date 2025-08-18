@@ -22,6 +22,7 @@ export const useChatStore = create(
       isCreatingGroup: false,
       isGroupsLoading: false,
       isAddingMember:false,
+      isRemovingMember:false,
       updatingGroupInfo: false,
       updatingGroupInfo: false,
       lastSeenMap: {},
@@ -287,6 +288,27 @@ export const useChatStore = create(
           set({ isAddingMember: false });
         }
 
+      },
+
+      removeMember:async (email)=>{
+        set({ isRemovingMember: true });
+        try {
+          const {getGroupMembers,selectedGroup}=get()
+          const res=await axiosInstance.delete(`/groups/${selectedGroup?.id}/members`,{data:{email}});
+          await getGroupMembers()
+
+          toast.success(res.data.message)
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message);
+          } else if (error.request) {
+            toast.error("No response from server.");
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
+        } finally {
+          set({ isRemovingMember: false });
+        }
       },
 
 
